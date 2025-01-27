@@ -5,6 +5,7 @@ namespace Src.VisualisationTools
     public class Arrow : MonoBehaviour
     {
         [Header("Parameters")]
+        [SerializeField] private float headLength;
         [SerializeField] private float length;
         [SerializeField] private Color color;
         [SerializeField] private float angleRad;
@@ -28,6 +29,7 @@ namespace Src.VisualisationTools
         
         public void SetLength(float length)
         {
+            length -= headLength;
             var lineScale = line.transform.localScale;
             lineScale.y = length;
             line.transform.localScale = lineScale;
