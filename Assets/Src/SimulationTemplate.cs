@@ -16,12 +16,17 @@ namespace Src
         
         protected virtual void Start()
         {
-            timeSlider.minValue = 0;
-            timeSlider.maxValue = simulationTime;
-            timeSlider.value = 0;
+            SetUpSliderInterval();
             
             timeSlider.onValueChanged.AddListener(OnTimeSliderValueChanged);
             playAsCoroutineButton.onClick.AddListener(PlayAsCoroutine);
+        }
+
+        protected void SetUpSliderInterval()
+        {
+            timeSlider.minValue = 0;
+            timeSlider.maxValue = simulationTime;
+            timeSlider.value = 0;
         }
 
         private void PlayAsCoroutine()

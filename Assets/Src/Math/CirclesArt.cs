@@ -93,6 +93,9 @@ namespace Src.Math
             
             
             DrawPlot();
+            SetSimulationState(0);
+            SetUpSliderInterval();
+
         }
 
         private void CalculateDotsPositions()
@@ -167,6 +170,7 @@ namespace Src.Math
             lineRenderer.positionCount = dots.Length;
             lineRenderer.SetPositions(dots);
             var circlesState = _circlesStates[stateIndex];
+            arrowsChain.SetArrowsCount(circlesState.Length);
             for (int i = 0; i < circlesState.Length; i++)
             {
                 var circle = circlesState[i];

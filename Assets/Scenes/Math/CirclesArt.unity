@@ -2061,19 +2061,19 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 653f2d76794a2a344a14d33d36c04a75, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  simulationTime: 2
+  simulationTime: 1.570796
   samplesCount: 1000
   timeSlider: {fileID: 368298287}
   playAsCoroutineButton: {fileID: 1852684451}
   circles:
-  - arrowAngle: 3.51
+  - arrowAngle: 0.7853982
     angularVelocity: 1
-    radius: 2.76
-  - arrowAngle: 0.46
-    angularVelocity: 3.33
-    radius: 4.53
+    radius: 1.414214
+  - arrowAngle: 2.3561945
+    angularVelocity: -3.010516
+    radius: 0.4142136
   lineRenderer: {fileID: 606433338}
-  lineWidth: 0.1
+  lineWidth: 0.01
   lineColor: {r: 1, g: 0.90877986, b: 0.4575472, a: 1}
   arrowsChain: {fileID: 647804745}
   plotter2D: {fileID: 741791260}
