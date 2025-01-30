@@ -15,7 +15,14 @@ namespace Src.Math.CirclesArt
                 for (int j = 0; j < circlesStates[i].Length; j++)
                 {
                     var circle = circlesStates[i][j];
-                    circle.arrowAngle += circle.angularVelocity * i * timeStep;
+                    if (circle.AngularVelocityFunc is null)
+                    {
+                        circle.arrowAngle += circle.angularVelocity * i * timeStep;
+                    }
+                    else
+                    {
+                        circle.arrowAngle += circle.AngularVelocityFunc(i*timeStep) * i * timeStep;
+                    }
                     circlesStates[i][j] = circle;
                 }
             }

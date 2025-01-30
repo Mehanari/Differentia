@@ -785,7 +785,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 330.42, y: 232.2}
+  m_AnchoredPosition: {x: 288, y: -68}
   m_SizeDelta: {x: 160, y: 20}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &368298287
@@ -2061,7 +2061,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 653f2d76794a2a344a14d33d36c04a75, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  simulationTime: 1.570796
+  simulationTime: 3.1415925
   samplesCount: 1000
   timeSlider: {fileID: 368298287}
   playAsCoroutineButton: {fileID: 1852684451}
@@ -2954,7 +2954,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 332.25, y: 198.84}
+  m_AnchoredPosition: {x: 289.83002, y: -101.360016}
   m_SizeDelta: {x: 160, y: 30}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1852684451

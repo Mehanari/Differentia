@@ -36,6 +36,7 @@ namespace Src.Math.CirclesArt
             lineRenderer.endWidth = lineWidth;
             
             arrowsChain.SetArrowsCount(circles.Length);
+            circles[1].AngularVelocityFunc = (input) => Mathf.Cos(input*input)* (-3);
             
             CalculateCirclesStates();
             CalculateDotsPositions();

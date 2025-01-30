@@ -1,4 +1,5 @@
 ﻿using System;
+using JetBrains.Annotations;
 using UnityEngine;
 
 namespace Src.Math.CirclesArt
@@ -11,5 +12,13 @@ namespace Src.Math.CirclesArt
         public float arrowAngle;
         public float angularVelocity;
         public float radius;
+
+        //A function for getting angular velocity over time (or whatever you want).
+        //Needed for the case if you want to experiment with non-constant angular velocities.
+        //Returns angularVelocity by default.
+        //The StateCalculator class uses angularVelocity field if this func is null, otherwise
+        //it will use this func.
+        //This system is not very safe and can be broken accidentally, but for the sake of experiments, I let it be.
+        [CanBeNull] public Func<float, float> AngularVelocityFunc;
     }
 }
