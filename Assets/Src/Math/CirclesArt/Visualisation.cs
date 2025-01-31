@@ -1,12 +1,14 @@
 using System;
 using System.Collections.Generic;
 using Src.VisualisationTools;
+using Unity.Mathematics;
 using UnityEngine;
 
 namespace Src.Math.CirclesArt
 {
     public class Visualisation : SimulationBase
     {
+        [SerializeField] private GameObject dotPrefab;
         [SerializeField] private Circle[] circles;
         [SerializeField] private LineRenderer lineRenderer;
         [SerializeField] private float lineWidth;
@@ -27,6 +29,12 @@ namespace Src.Math.CirclesArt
         protected override void Start()
         {
             base.Start();
+
+            var algorithm = new GeneticAlgorithm();
+            var keyPoints = GenerateKeyPoints();
+            //ShowKeyPoints(keyPoints);
+            circles = algorithm.Fit(circles, TimeStep, samplesCount, keyPoints);
+            plotter2D.Plot(0, 10, algorithm.LastFitBestAppeals, "Fit", Color.yellow, new Vector3(0, 15, 0));
             _circlesStates = new Circle[samplesCount][];
             _allLineDotsCircular = new Vector2[samplesCount];
             _lineDots = new Vector3[samplesCount];
@@ -36,13 +44,79 @@ namespace Src.Math.CirclesArt
             lineRenderer.endWidth = lineWidth;
             
             arrowsChain.SetArrowsCount(circles.Length);
-            circles[1].AngularVelocityFunc = (input) => Mathf.Cos(input*input)* (-3);
             
             CalculateCirclesStates();
             CalculateDotsPositions();
             SetSimulationState(0);
 
             DrawPlot();
+        }
+
+        private (int index, Vector3 point)[] GenerateKeyPoints()
+        {
+            (int index, Vector3 point)[] keyPoints = new(int index, Vector3 point)[samplesCount];
+            HashSet<int> indices = new();
+            
+            var lastIndex = 0;
+            foreach (var dot in dotsDrawing)
+            {
+                var pos = dot.position;
+                var angle = GetXAxisAngle(pos);
+                var fraction = angle / (2 * Mathf.PI);
+                var index = (int) (samplesCount * fraction);
+                while (indices.Contains(index))
+                {
+                    index++;
+                }
+                if (index >= samplesCount)
+                {
+                    index = samplesCount - 1;
+                }
+                indices.Add(index);
+                keyPoints[index] = (index, pos);
+                //Interpolating values between specified key points
+                for (int j = lastIndex + 1; j < index; j++)
+                {
+                    var a = (j - lastIndex) / (float)(index - lastIndex);
+                    var from = keyPoints[lastIndex].point;
+                    var to = pos;
+                    var interpolation = Vector3.Lerp(from, to, a);
+                    keyPoints[j] = (j, interpolation);
+                    indices.Add(j);
+                }
+                lastIndex = index;
+            }
+
+            //Interpolating last segment
+            for (int i = lastIndex+1; i < keyPoints.Length; i++)
+            {
+                var a = (i - lastIndex) / (float)(keyPoints.Length - lastIndex);
+                var from = keyPoints[lastIndex].point;
+                var to = keyPoints[0].point;
+                var interpolation = Vector3.Lerp(from, to, a);
+                keyPoints[i] = (i, interpolation);
+                indices.Add(i);
+            }
+
+            return keyPoints;
+        }
+
+        private void ShowKeyPoints((int index, Vector3 point)[] points)
+        {
+            foreach (var point in points)
+            {
+                Instantiate(dotPrefab, point.point, quaternion.identity);
+            }
+        }
+
+        private float GetXAxisAngle(Vector3 vector)
+        {
+            var angle = Mathf.Acos((Vector3.Dot(Vector3.right, vector)) / (vector.magnitude * Vector3.right.magnitude));
+            if (vector.y < 0)
+            {
+                angle = 2 * Mathf.PI - angle;
+            }
+            return angle;
         }
 
         private void DrawPlot()
