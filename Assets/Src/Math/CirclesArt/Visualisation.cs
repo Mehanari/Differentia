@@ -30,11 +30,10 @@ namespace Src.Math.CirclesArt
         {
             base.Start();
 
-            var algorithm = new GeneticAlgorithm();
+            var algorithm = new BestMistakeCorrectionGA();
             var keyPoints = GenerateKeyPoints();
             //ShowKeyPoints(keyPoints);
             circles = algorithm.Fit(circles, TimeStep, samplesCount, keyPoints);
-            plotter2D.Plot(0, 10, algorithm.LastFitBestAppeals, "Fit", Color.yellow, new Vector3(0, 15, 0));
             _circlesStates = new Circle[samplesCount][];
             _allLineDotsCircular = new Vector2[samplesCount];
             _lineDots = new Vector3[samplesCount];
