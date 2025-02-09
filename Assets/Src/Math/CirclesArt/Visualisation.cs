@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Src.VisualisationTools;
 using Unity.Mathematics;
 using UnityEngine;
@@ -30,10 +31,15 @@ namespace Src.Math.CirclesArt
         {
             base.Start();
 
-            var algorithm = new BestMistakeCorrectionGA();
+            var algorithm = new AttentionDistributionGA();
             var keyPoints = GenerateKeyPoints();
+            var criticalPointsIndices = keyPoints.Where(k => dotsDrawing.Exists(d => d.position == k.point))
+                .Select(k => k.index).ToHashSet();
+            //algorithm.CriticalPointsIndices = criticalPointsIndices;
             //ShowKeyPoints(keyPoints);
             circles = algorithm.Fit(circles, TimeStep, samplesCount, keyPoints);
+            plotter2D.Plot(0f, 10f, algorithm.ImprovementIntervals.ToArray(), "Improvement",  Color.yellow, new Vector3(0, 10, 0));
+            Debug.Log("Total improvements: " + algorithm.ImprovementIndices.Count);
             _circlesStates = new Circle[samplesCount][];
             _allLineDotsCircular = new Vector2[samplesCount];
             _lineDots = new Vector3[samplesCount];

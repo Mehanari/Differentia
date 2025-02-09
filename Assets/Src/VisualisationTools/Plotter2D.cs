@@ -51,6 +51,19 @@ namespace Src
             Plot(x, y, plotName, color, shift);
         }
         
+        public void Plot(float from, float to, int[] y, string plotName, Color color, Vector3 shift = default)
+        {
+            var x = new float[y.Length];
+            var step = (to - from) / y.Length;
+            var yFloat = new float[y.Length];
+            for (int i = 0; i < y.Length; i++)
+            {
+                yFloat[i] = y[i];
+                x[i] = from + i * step;
+            }
+            Plot(x, yFloat, plotName, color, shift);
+        }
+        
         public void Plot(float xStep, float[] y, string plotName, Color color, Vector3 shift = default)
         {
             var x = new float[y.Length];

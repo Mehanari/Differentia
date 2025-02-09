@@ -1,4 +1,5 @@
 ﻿using System;
+using UnityEngine;
 
 namespace Src
 {
@@ -63,6 +64,33 @@ namespace Src
             }
 
             return integrals;        
+        }
+
+        public static float[] NormalizeVector(float[] vector)
+        {
+            var normalizedVector = new float[vector.Length];
+            var vectorSum = 0f;
+            for (int i = 0; i < vector.Length; i++)
+            {
+                vectorSum += vector[i];
+            }
+            for (int i = 0; i < vector.Length; i++)
+            {
+                normalizedVector[i] = vector[i] / vectorSum;
+            }
+
+            return normalizedVector;
+        }
+
+        public static float CalculateLength(float[] vector)
+        {
+            var squaresSum = 0f;
+            for (int i = 0; i < vector.Length; i++)
+            {
+                squaresSum += vector[i] * vector[i];
+            }
+
+            return Mathf.Sqrt(squaresSum);
         }
     }
 }

@@ -2403,64 +2403,64 @@ MonoBehaviour:
   circles:
   - arrowAngle: 0
     angularVelocity: 1
-    radius: 0.5
+    radius: 0.2
   - arrowAngle: 0
     angularVelocity: 1
-    radius: 0.5
+    radius: 0.2
   - arrowAngle: 0
     angularVelocity: 1
-    radius: 0.5
+    radius: 0.2
   - arrowAngle: 0
     angularVelocity: 1
-    radius: 0.5
+    radius: 0.2
   - arrowAngle: 0
     angularVelocity: 1
-    radius: 0.5
+    radius: 0.2
   - arrowAngle: 0
     angularVelocity: 1
-    radius: 0.5
+    radius: 0.2
   - arrowAngle: 0
     angularVelocity: 1
-    radius: 0.5
+    radius: 0.2
   - arrowAngle: 0
     angularVelocity: 1
-    radius: 0.5
+    radius: 0.2
   - arrowAngle: 0
     angularVelocity: 1
-    radius: 0.5
+    radius: 0.2
   - arrowAngle: 0
     angularVelocity: 1
-    radius: 0.5
+    radius: 0.2
   - arrowAngle: 0
     angularVelocity: 1
-    radius: 0.5
+    radius: 0.2
   - arrowAngle: 0
     angularVelocity: 1
-    radius: 0.5
+    radius: 0.2
   - arrowAngle: 0
     angularVelocity: 1
-    radius: 0.5
+    radius: 0.2
   - arrowAngle: 0
     angularVelocity: 1
-    radius: 0.5
+    radius: 0.2
   - arrowAngle: 0
     angularVelocity: 1
-    radius: 0.5
+    radius: 0.2
   - arrowAngle: 0
     angularVelocity: 1
-    radius: 0.5
+    radius: 0.2
   - arrowAngle: 0
     angularVelocity: 1
-    radius: 0.5
+    radius: 0.2
   - arrowAngle: 0
     angularVelocity: 1
-    radius: 0.5
+    radius: 0.2
   - arrowAngle: 0
     angularVelocity: 1
-    radius: 0.5
+    radius: 0.2
   - arrowAngle: 0
     angularVelocity: 1
-    radius: 0.5
+    radius: 0.2
   lineRenderer: {fileID: 606433338}
   lineWidth: 0.01
   lineColor: {r: 1, g: 0.90877986, b: 0.4575472, a: 1}

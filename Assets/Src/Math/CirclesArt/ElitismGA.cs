@@ -8,7 +8,7 @@ namespace Src.Math.CirclesArt
     /// </summary>
     public class ElitismGA : BaseGA
     {
-        public float ElitismPercent { get; set; } = 0.1f;
+        public float ElitismPercent { get; set; } = 0.01f;
 
         public ElitismGA()
         {
@@ -28,8 +28,8 @@ namespace Src.Math.CirclesArt
             }
             for (int i = eliteMaxIndex+1; i < newPopulation.Length; i++)
             {
-                var parentAIndex = PickIndexPoison(previousPopulation);
-                var parentBIndex = PickIndexPoison(previousPopulation, lambda: 0.5f, parentAIndex);
+                var parentAIndex = PickIndexPoison(previousPopulation.Length);
+                var parentBIndex = PickIndexPoison(previousPopulation.Length, lambda: 0.5f, parentAIndex);
                 var child = Breed(previousPopulation[parentAIndex], previousPopulation[parentBIndex]);
                 Mutate(child);
                 newPopulation[i] = child;

@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using UnityEngine;
+using Debug = UnityEngine.Debug;
 using Random = UnityEngine.Random;
 
 namespace Src.Math.CirclesArt
@@ -10,25 +12,62 @@ namespace Src.Math.CirclesArt
     /// </summary>
     public class BaseGA
     {
-        public int PopulationSize { get; set; } = 50;
-        public int Iterations { get; set; } = 2000;
+        protected class MaxErrorComparer : IComparer<Specimen>
+        {
+            public int Compare(Specimen x, Specimen y)
+            {
+                if (ReferenceEquals(x, y)) return 0;
+                if (ReferenceEquals(null, y)) return 1;
+                if (ReferenceEquals(null, x)) return -1;
+                return x.MaxError.CompareTo(y.MaxError);
+            }
+        }
+        
+        public int PopulationSize { get; set; } = 100;
+        public int Iterations { get; set; } = 10000;
         public float RadiusMutationProbability { get; set; } = 0.2f;
         public float AngularVelocityMutationProbability { get; set; } = 0.1f;
         public float InitialAngleMutationProbability { get; set; } = 0.1f;
         public float InitialAngleMutationStep { get; set; } = 0.05f;
-        public float RadiusMutationStep { get; set; } = 0.05f;
+        public float RadiusMutationStep { get; set; } = 0.0125f;
         public float AngularVelocityMutationStep { get; set; } = 0.05f;
+
+        //Distances between improvements, e.g. how many iterations took the each next improvement.
+        //This list should be cleared at the beginning of every Fit method call.
+        //This field is public so that I can plot the values.
+        public List<int> ImprovementIntervals = new();
+
+        //Should be cleared on every Fit call.
+        public List<int> ImprovementIndices = new();
+
+        //How much each iteration took.
+        //Clear on every Fit call.
+        public TimeSpan[] IterationTimes;
+
+        //Should be set to 0f on every Fit call.
+        protected float CurrentBestInverseMaxError;
 
         //This field is for the case if in one of the derived classes I happen to need key points values.
         //I know it is not a very good practice to save an intermediate state for the time of one method call,
         //but I don't see any significant problems and other easy enough solutions as for now.
         protected (int index, Vector3 point)[] CurrentFitKeyPoints;
-        
+
         protected class Specimen
         {
             public Circle[] Circles;
+
+            //Appeal is a general utility function value used to sort specimens.
+            //In basic GA implementation it is 1 divided by max error module. 
             public float Appeal;
+
             public Vector3[] LineDots;
+
+            //Vectors from drawing key points to specimen's actual drawing points.
+            public Vector3[] Errors;
+            //Array of error vectors magnitudes. For the sake of not recalculating 
+            //this module every time it is needed.
+            public float[] ErrorsModules;
+            public float MaxError;
         }
 
         /// <summary>
@@ -46,7 +85,7 @@ namespace Src.Math.CirclesArt
             }
         }
 
-        
+
         //This methods finds a configuration of circles such that a shape drawn by them
         //crosses the key points or goes as close to them as possible. The key points 
         //are defined by an index and a cartesian coordinate. The index represents the dot's index
@@ -57,27 +96,46 @@ namespace Src.Math.CirclesArt
         public virtual Circle[] Fit(Circle[] initialState, float timeStep, int samplesCount,
             (int index, Vector3 point)[] keyPoints)
         {
+            IterationTimes = new TimeSpan[Iterations];
+            ImprovementIndices.Clear();
+            ImprovementIntervals.Clear();
+            CurrentBestInverseMaxError = 0f;
             CurrentFitKeyPoints = keyPoints;
+            var stopwatch = new Stopwatch();
             var population = GenerateInitialPopulation(initialState);
-            
+
             for (int i = 0; i < Iterations; i++)
             {
+                stopwatch.Start();
                 GenerateLineDots(population, timeStep, samplesCount);
-                EvaluatePopulation(population, keyPoints);
+                CalculatePopulationErrors(population, keyPoints);
                 SortPopulation(population);
+
                 LogPopulationInfo(population, i);
-                
+
                 var newPopulation = new Specimen[population.Length];
                 GenerateNewPopulation(newPopulation, population);
                 population = newPopulation;
+                stopwatch.Stop();
+                IterationTimes[i] = stopwatch.Elapsed;
+                Debug.Log("Iteration #" + i + " time: " + stopwatch.Elapsed);
+                stopwatch.Reset();
             }
+
             //Processing the last population
             GenerateLineDots(population, timeStep, samplesCount);
-            EvaluatePopulation(population, keyPoints);
-            Array.Sort(population, new AppealSpecimenComparer());
-            var bestSpecimen = population[0];
-            Debug.Log("Best specimen appeal: " + bestSpecimen.Appeal);
+            CalculatePopulationErrors(population, keyPoints);
+            SortPopulation(population);
+            var bestSpecimen = GetBest(population);
+            Debug.Log("Best specimen inverse error: " + (1/bestSpecimen.MaxError));
             return bestSpecimen.Circles;
+        }
+        
+
+        protected virtual Specimen GetBest(Specimen[] lastPopulation)
+        {
+            Array.Sort(lastPopulation, new MaxErrorComparer());
+            return lastPopulation[0];
         }
 
         private Specimen[] GenerateInitialPopulation(Circle[] initialState)
@@ -102,8 +160,8 @@ namespace Src.Math.CirclesArt
         {
             for (int j = 0; j < newPopulation.Length; j++)
             {
-                var parentAIndex = PickIndexPoison(previousPopulation);
-                var parentBIndex = PickIndexPoison(previousPopulation, lambda: 0.5f, parentAIndex);
+                var parentAIndex = PickIndexPoison(previousPopulation.Length);
+                var parentBIndex = PickIndexPoison(previousPopulation.Length, lambda: 0.5f, parentAIndex);
                 var child = Breed(previousPopulation[parentAIndex], previousPopulation[parentBIndex]);
                 Mutate(child);
                 newPopulation[j] = child;
@@ -112,9 +170,33 @@ namespace Src.Math.CirclesArt
 
         protected virtual void LogPopulationInfo(Specimen[] population, int iteration)
         {
-            
+
             var (maxAppeal, minAppeal) = GetMaxAndMinAppeal(population);
-            Debug.Log("Iteration #" + iteration + 
+            var currentMinMaxError = float.MaxValue;
+            foreach (var specimen in population)    
+            {
+                if (specimen.MaxError < currentMinMaxError)
+                {
+                    currentMinMaxError = specimen.MaxError;
+                }
+            }
+
+            var bestInverseMaxError = 1 / currentMinMaxError;
+            if (bestInverseMaxError > CurrentBestInverseMaxError)
+            {
+                CurrentBestInverseMaxError = bestInverseMaxError;
+                var lastImprovement = 0;
+                if (ImprovementIndices.Count > 0)
+                {
+                    lastImprovement = ImprovementIndices[^1];
+                }
+
+                ImprovementIntervals.Add(iteration - lastImprovement);
+                ImprovementIndices.Add(iteration);
+            }
+
+            Debug.Log("Iteration #" + iteration +
+                      ". Inverse max error: " + bestInverseMaxError +
                       ". Best appeal: " + maxAppeal
                       + ". Worst appeal: " + minAppeal + ".");
         }
@@ -128,8 +210,31 @@ namespace Src.Math.CirclesArt
         /// <param name="population"></param>
         protected virtual void SortPopulation(Specimen[] population)
         {
+            CalculatePopulationAppeals(population);
             IComparer<Specimen> comparer = new AppealSpecimenComparer();
             Array.Sort(population, comparer);
+        }
+
+        protected virtual void CalculatePopulationAppeals(Specimen[] population)
+        {
+            foreach (var specimen in population)
+            {
+                CalculateAppealAsMaxErrorInverse(specimen);
+            }
+        }
+
+        protected void CalculateAppealAsMaxErrorInverse(Specimen specimen)
+        {
+            var maxErrorModule = float.MinValue;
+            foreach (var error in specimen.Errors)
+            {
+                if (error.magnitude > maxErrorModule)
+                {
+                    maxErrorModule = error.magnitude;
+                }
+            }
+
+            specimen.Appeal = 1 / maxErrorModule;
         }
 
         protected (float max, float min) GetMaxAndMinAppeal(Specimen[] population)
@@ -165,16 +270,16 @@ namespace Src.Math.CirclesArt
         
         /// <summary>
         /// Evaluates how close each specimen's drawing is to the target drawing based on the
-        /// objective function defined by virtual Evaluate method.
+        /// objective function defined by virtual CalculateSpecimenErrors method.
         /// </summary>
         /// <param name="population"></param>
         /// <param name="keyPoints"></param>
-        private void EvaluatePopulation(Specimen[] population, (int index, Vector3 point)[] keyPoints)
+        private void CalculatePopulationErrors(Specimen[] population, (int index, Vector3 point)[] keyPoints)
         {
             for (int i = 0; i < population.Length; i++)
             {
                 var specimen = population[i];
-                Evaluate(specimen, keyPoints);
+                CalculateSpecimenErrors(specimen, keyPoints);
             }
         }
 
@@ -201,7 +306,7 @@ namespace Src.Math.CirclesArt
         /// <param name="lambda"></param>
         /// <param name="indexToAvoid"></param>
         /// <returns></returns>
-        protected int PickIndexPoison(Specimen[] sortedPopulation, float lambda = 0.5f, int indexToAvoid = -1)
+        protected int PickIndexPoison(int populationLength, float lambda = 0.5f, int indexToAvoid = -1)
         {
             var r = Random.value;
             int index = (int)(-Mathf.Log(1 - r) / lambda);
@@ -209,34 +314,33 @@ namespace Src.Math.CirclesArt
             {
                 index++;
             }
-            index = System.Math.Min(index, sortedPopulation.Length - 1);
+            index = System.Math.Min(index, populationLength - 1);
             if (index < 0)
             {
                 index = 0;
             }
             return index;
         }
-
-        /// <summary>
-        /// The base implementation of this method calculates the maximum error (maximum distance) for a specimen
-        /// and sets appeal as a inverse of this value.
-        /// </summary>
-        /// <param name="specimen"></param>
-        /// <param name="keyPoints"></param>
-        protected virtual void Evaluate(Specimen specimen, (int index, Vector3 point)[] keyPoints)
+        
+        private void CalculateSpecimenErrors(Specimen specimen, (int index, Vector3 point)[] keyPoints)
         {
-            var maxDistance = float.MinValue;
+            specimen.Errors = new Vector3[keyPoints.Length];
+            specimen.ErrorsModules = new float[keyPoints.Length];
+            var maxError = float.MinValue;
             foreach (var point in keyPoints)
             {
-                var dot = specimen.LineDots[point.index];
-                var distance = Vector3.Distance(dot, point.point);
-                if (distance > maxDistance)
+                var actualDot = specimen.LineDots[point.index];
+                var expectedDot = point.point;
+                var errorVector = expectedDot - actualDot;
+                specimen.Errors[point.index] = errorVector;
+                specimen.ErrorsModules[point.index] = errorVector.magnitude;
+                if (errorVector.magnitude > maxError)
                 {
-                    maxDistance = distance;
+                    maxError = errorVector.magnitude;
                 }
             }
 
-            specimen.Appeal = 1 / maxDistance;
+            specimen.MaxError = maxError;
         }
 
         /// <summary>
