@@ -1,21 +1,10 @@
 using System.Collections.Generic;
-using JetBrains.Annotations;
 using UnityEngine;
 
-namespace Src
+namespace Src.VisualisationTools.Plotting
 {
     public class Plotter2D : MonoBehaviour
     {
-        private class PlotParameters
-        {
-            public string Name { get; set; }
-            public float[] X { get; set; }
-            public float[] Y { get; set; }
-            public Color Color { get; set; }
-            [CanBeNull] public LineRenderer Line { get; set; }
-            [CanBeNull] public List<GameObject> Dots { get; set; }
-        }
-
         [SerializeField] private GameObject dotPrefab;
         [SerializeField] private float lineWidth = 0.1f;
         [SerializeField] private float dotSize = 0.1f;

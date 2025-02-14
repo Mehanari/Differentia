@@ -92,5 +92,13 @@ namespace Src
 
             return Mathf.Sqrt(squaresSum);
         }
+
+        public static float GetAngleBetweenVectors(Vector3 a, Vector3 b)
+        {
+            var dotProduct = Vector3.Dot(a, b);
+            var aLength = a.magnitude;
+            var bLength = b.magnitude;
+            return Mathf.Acos(dotProduct / (aLength * bLength));
+        }
     }
 }

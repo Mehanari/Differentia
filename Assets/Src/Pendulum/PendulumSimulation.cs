@@ -1,4 +1,5 @@
 using System;
+using Src.VisualisationTools.Plotting;
 using UnityEngine;
 
 namespace Src.Pendulum

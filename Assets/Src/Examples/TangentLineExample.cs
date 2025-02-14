@@ -1,8 +1,9 @@
 using System;
+using Src.VisualisationTools.Plotting;
 using UnityEngine;
 using UnityEngine.UI;
 
-namespace Src
+namespace Src.Examples
 {
     public class TangentLineExample : MonoBehaviour
     {

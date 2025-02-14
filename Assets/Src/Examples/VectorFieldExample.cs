@@ -2,7 +2,7 @@
 using Src.VisualisationTools;
 using UnityEngine;
 
-namespace Src
+namespace Src.Examples
 {
     public class VectorFieldExample : MonoBehaviour
     {

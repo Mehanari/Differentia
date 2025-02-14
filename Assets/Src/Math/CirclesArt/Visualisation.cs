@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Src.VisualisationTools;
-using Unity.Mathematics;
+using Src.VisualisationTools.Plotting;
 using UnityEngine;
 
 namespace Src.Math.CirclesArt
@@ -110,7 +110,7 @@ namespace Src.Math.CirclesArt
         {
             foreach (var point in points)
             {
-                Instantiate(dotPrefab, point.point, quaternion.identity);
+                Instantiate(dotPrefab, point.point, Quaternion.identity);
             }
         }
 

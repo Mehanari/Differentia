@@ -24,9 +24,9 @@ namespace Src.Math.CirclesArt
         }
         
         public int PopulationSize { get; set; } = 100;
-        public int Iterations { get; set; } = 10000;
+        public int Iterations { get; set; } = 100;
         public float RadiusMutationProbability { get; set; } = 0.2f;
-        public float AngularVelocityMutationProbability { get; set; } = 0.1f;
+        public float AngularVelocityMutationProbability { get; set; } = 0f;
         public float InitialAngleMutationProbability { get; set; } = 0.1f;
         public float InitialAngleMutationStep { get; set; } = 0.05f;
         public float RadiusMutationStep { get; set; } = 0.0125f;
@@ -67,6 +67,8 @@ namespace Src.Math.CirclesArt
             //Array of error vectors magnitudes. For the sake of not recalculating 
             //this module every time it is needed.
             public float[] ErrorsModules;
+            //Same as for ErrorsModules, but for angles.
+            public float[] ErrorAngles;
             public float MaxError;
         }
 
@@ -326,18 +328,22 @@ namespace Src.Math.CirclesArt
         {
             specimen.Errors = new Vector3[keyPoints.Length];
             specimen.ErrorsModules = new float[keyPoints.Length];
+            specimen.ErrorAngles = new float[keyPoints.Length];
             var maxError = float.MinValue;
             foreach (var point in keyPoints)
             {
                 var actualDot = specimen.LineDots[point.index];
                 var expectedDot = point.point;
                 var errorVector = expectedDot - actualDot;
+                var errorAngle = CalculusUtils.GetAngleBetweenVectors(errorVector, actualDot);
                 specimen.Errors[point.index] = errorVector;
                 specimen.ErrorsModules[point.index] = errorVector.magnitude;
                 if (errorVector.magnitude > maxError)
                 {
                     maxError = errorVector.magnitude;
                 }
+
+                specimen.ErrorAngles[point.index] = errorAngle;
             }
 
             specimen.MaxError = maxError;
