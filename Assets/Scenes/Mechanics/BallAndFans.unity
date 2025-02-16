@@ -294,7 +294,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   airResistance: 1
   ballMass: 1
-  hitSpeedLoss: 0
+  hitSpeedLossPercent: 0.1
   gravity: 9.81
   initialVelocity: {x: 0, y: 0}
   ball: {fileID: 45034518}

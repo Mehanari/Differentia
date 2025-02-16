@@ -15,15 +15,15 @@ namespace Src.Figures
             Gizmos.DrawWireCube(Vector3.zero, new Vector3(Length, Height, 0f));
         }
 
-        public override bool IsTouching(Vector3 point, out Touch touch, float epsilon = 0.00001f)
+        public override bool IsTouching(Vector3 point, out Touch touch)
         {
             var pivotPosition = pivot.position;
             var vector = pivotPosition - point;
             var toLocal = pivot.worldToLocalMatrix;
             var toWorld = pivot.localToWorldMatrix;
             var localVector = toLocal.MultiplyVector(vector);
-            var inXRange = localVector.x <= Length / 2 + epsilon && localVector.x >= -Length / 2 - epsilon;
-            var inYRange = localVector.y <= Height / 2 + epsilon && localVector.y >= -Height / 2 - epsilon;
+            var inXRange = localVector.x <= Length / 2 && localVector.x >= -Length / 2;
+            var inYRange = localVector.y <= Height / 2 && localVector.y >= -Height / 2;
 
             var isInner = false;
             var xOffset = localVector.x - Length / 2;
@@ -58,6 +58,7 @@ namespace Src.Figures
                     touchVector.y = yOffset;
                 }
 
+                touchVector *= -1;
                 isInner = true;
             }
 

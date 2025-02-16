@@ -14,6 +14,6 @@ namespace Src.Figures
         /// <param name="point"></param>
         /// <param name="touchVector"></param>
         /// <returns></returns>
-        public abstract bool IsTouching(Vector3 point, out Touch touch, float epsilon = 0.00001f);
+        public abstract bool IsTouching(Vector3 point, out Touch touch);
     }
 }
