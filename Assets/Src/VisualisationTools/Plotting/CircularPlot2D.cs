@@ -7,12 +7,12 @@ namespace Src.VisualisationTools.Plotting
     {
         [SerializeField] private float lineWidth = 0.1f;
 
-        private List<PlotParameters> _plots = new();
+        private List<PlotParameters2D> _plots = new();
         
         public void Plot(float[] radii, float[] angles, string plotName, Color color, Vector3 shift = default)
         {
             var line = CreateLine(lineWidth, color, plotName, radii.Length);
-            var plot = new PlotParameters()
+            var plot = new PlotParameters2D()
             {
                 Color = color,
                 Line = line,

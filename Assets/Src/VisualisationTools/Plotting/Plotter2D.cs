@@ -9,7 +9,7 @@ namespace Src.VisualisationTools.Plotting
         [SerializeField] private float lineWidth = 0.1f;
         [SerializeField] private float dotSize = 0.1f;
         
-        private List<PlotParameters> _plots = new List<PlotParameters>();
+        private List<PlotParameters2D> _plots = new List<PlotParameters2D>();
         
         public void PlotDots(Vector2[] dots, string plotName, Color color, Vector3 shift = default)
         {
@@ -22,7 +22,7 @@ namespace Src.VisualisationTools.Plotting
                 dotGo.GetComponent<SpriteRenderer>().color = color;
                 dotsList.Add(dotGo);
             }
-            _plots.Add(new PlotParameters
+            _plots.Add(new PlotParameters2D
             {
                 Name = plotName,
                 Dots = dotsList
@@ -78,7 +78,7 @@ namespace Src.VisualisationTools.Plotting
             {
                 line.SetPosition(i, shift + new Vector3(x[i], y[i], 0));
             }
-            _plots.Add(new PlotParameters
+            _plots.Add(new PlotParameters2D
             {
                 Name = plotName,
                 X = x,

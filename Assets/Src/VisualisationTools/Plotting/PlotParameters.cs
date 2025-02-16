@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace Src.VisualisationTools.Plotting
 {
-    public class PlotParameters
+    public class PlotParameters2D
     {
         public string Name { get; set; }
         public float[] X { get; set; }
