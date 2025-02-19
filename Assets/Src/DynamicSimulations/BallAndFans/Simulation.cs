@@ -2,7 +2,6 @@ using System.Collections.Generic;
 using Src.Figures;
 using Src.ForceFields;
 using UnityEngine;
-using Touch = Src.Figures.Touch;
 
 namespace Src.DynamicSimulations.BallAndFans
 {
@@ -12,6 +11,7 @@ namespace Src.DynamicSimulations.BallAndFans
     /// </summary>
     public class Simulation : MonoBehaviour
     {
+        [SerializeField] private float frameIterationsLimit = 5;
         [SerializeField] private float airResistance = 0.01f;
         [SerializeField] private float ballMass = 1f;
         [SerializeField] private float hitSpeedLossPercent = 0.01f;
@@ -24,6 +24,10 @@ namespace Src.DynamicSimulations.BallAndFans
         private Vector2 _ballPosition;
         private Vector2 _ballVelocity;
 
+        //Conditions for stopping.
+        private const float MIN_TIME_BEFORE_CONTACT = 0.0001f;
+        private const float MIN_CONTACT_VELOCITY = 0.1f;
+
         private void Start()
         {
             _ballVelocity = initialVelocity;
@@ -34,12 +38,16 @@ namespace Src.DynamicSimulations.BallAndFans
         {
             var gravityVector = new Vector2(0, -gravity);
             var deltaTime = Time.fixedDeltaTime;
-
-            while (deltaTime > 0)
+            var iterations = 0;
+            while (deltaTime > 0 && iterations < frameIterationsLimit)
             {
+                iterations++;
                 var currentPosition = _ballPosition;
-                var currentVelocity = _ballVelocity;
-                var nextPosition = currentPosition + deltaTime * currentVelocity;
+                var startVelocity = _ballVelocity;
+                var endVelocity = startVelocity + deltaTime * (gravityVector - airResistance * startVelocity);
+                endVelocity = ApplyForceFields(endVelocity, currentPosition, deltaTime);
+                var averageVelocity = (startVelocity + endVelocity) / 2; //We assume that during this time period ball is moving with constant acceleration.
+                var nextPosition = currentPosition + deltaTime * averageVelocity;
                 var displacementVector = nextPosition - currentPosition;
                 var initialDisplacementVectorLength = displacementVector.magnitude;
                 var totalDeepening = 0f;
@@ -49,44 +57,63 @@ namespace Src.DynamicSimulations.BallAndFans
                     if (obstacle.IsTouching(nextPosition, out var touch))
                     {
                         var touchNormal = touch.Vector;
+                        if (touchNormal.magnitude == 0)
+                        {
+                            continue;
+                        }
                         reflectionNormal = touchNormal; //We use the last touch normal to reflect speed vector.
                         var angle = VectorUtils.MinAngleRad(displacementVector, touchNormal);
                         var deepening = touchNormal.magnitude / Mathf.Cos(angle);
                         totalDeepening += deepening;
-                        var deepeningPercent = deepening / displacementVector.magnitude;
-                        displacementVector *= (1 - deepeningPercent);
-                        nextPosition = currentPosition + displacementVector;
                     }
                 }
+
+                reflectionNormal = reflectionNormal.normalized;
 
                 var timeBeforeContact = deltaTime * (1f - totalDeepening / initialDisplacementVectorLength);
                 if (initialDisplacementVectorLength == 0f)
                 {
                     timeBeforeContact = deltaTime;
                 }
-                var nextVelocity = currentVelocity + timeBeforeContact * (gravityVector - airResistance * currentVelocity);
-                foreach (var forceField in forces)
+
+                if (timeBeforeContact < MIN_TIME_BEFORE_CONTACT && startVelocity.magnitude < MIN_CONTACT_VELOCITY)
                 {
-                    var force = forceField.GetForce(currentPosition);
-                    nextVelocity += (Vector2) ( timeBeforeContact * (force / ballMass) );
+                    _ballVelocity = Vector2.zero;
+                    _ballPosition = currentPosition;
+                    break;
                 }
+                endVelocity = startVelocity + timeBeforeContact * (gravityVector - airResistance * startVelocity);
+                endVelocity = ApplyForceFields(endVelocity, currentPosition, timeBeforeContact);
+                averageVelocity = (startVelocity + endVelocity) / 2;
+                nextPosition = currentPosition + timeBeforeContact * averageVelocity;
                 //If there was a contact (collision), then there must be a reflection normal and we must reflect
                 //the velocity vector.
                 //We also apply hit speed loss here.
                 if (reflectionNormal.magnitude > 0)
                 {
-                    nextVelocity = -(2 * (Vector2.Dot(nextVelocity, reflectionNormal)
-                                          / Mathf.Pow(reflectionNormal.magnitude, 2))
-                                       * reflectionNormal - nextVelocity);
-                    nextVelocity *= (1 - hitSpeedLossPercent);
+                    endVelocity = -(2 * (Vector2.Dot(endVelocity, reflectionNormal)
+                                         / Mathf.Pow(reflectionNormal.magnitude, 2))
+                                      * reflectionNormal - endVelocity);
+                    endVelocity *= (1 - hitSpeedLossPercent);
                 }
 
                 _ballPosition = nextPosition;
-                _ballVelocity = nextVelocity;
+                _ballVelocity = endVelocity;
                 deltaTime -= timeBeforeContact; 
             }
             
             ball.transform.position = _ballPosition;
+        }
+
+        private Vector2 ApplyForceFields(Vector2 velocity, Vector3 currentPosition, float time)
+        {
+            foreach (var forceField in forces)
+            {
+                var force = forceField.GetForce(currentPosition);
+                velocity += (Vector2) ( time * (force / ballMass) );
+            }
+
+            return velocity;
         }
     }
 }
