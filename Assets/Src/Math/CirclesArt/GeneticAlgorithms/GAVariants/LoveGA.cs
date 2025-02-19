@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace Src.Math.CirclesArt
+namespace Src.Math.CirclesArt.GeneticAlgorithms.GAVariants
 {
     /// <summary>
     /// The idea behind this GA is that each individual in a population may have different preference for a partner.

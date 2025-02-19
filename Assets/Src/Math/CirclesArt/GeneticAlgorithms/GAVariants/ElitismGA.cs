@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 
-namespace Src.Math.CirclesArt
+namespace Src.Math.CirclesArt.GeneticAlgorithms.GAVariants
 {
     /// <summary>
     /// This version of genetic algorithm has an elitism mechanism which lets specified percent of best specimens of the

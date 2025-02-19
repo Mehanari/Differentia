@@ -46,7 +46,7 @@ namespace Src.Math.CirclesArt
                 {
                     circlesArray[1].radius = j * radiusChangeStep;
                     var solution = StatesCalculator.CalculateAllEdgePositions(circlesArray, drawingTimeStep, drawingSamples).cartesian;
-                    var fitness = MaxError(solution, actualSolution);
+                    var fitness = AverageError(solution, actualSolution);
                     fitnessValues[i, j] = fitness;
                 }
             }
@@ -66,6 +66,17 @@ namespace Src.Math.CirclesArt
             }
 
             return maxError;
+        }
+
+        private float AverageError(Vector3[] solution, Vector3[] actualSolution)
+        {
+            var errorsSum = 0f;
+            for (int i = 0; i < solution.Length; i++)
+            {
+                errorsSum += Vector3.Distance(solution[i], actualSolution[i]);
+            }
+
+            return errorsSum / solution.Length;
         }
     }
 }

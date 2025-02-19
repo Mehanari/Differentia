@@ -39,6 +39,19 @@ namespace Src.VisualisationTools.Plotting
             }
             Plot(x, y, plotName, color, shift);
         }
+
+        //Increase iteration step parameter to reduce the number of points to draw.
+        public void PlotLogarithmic(float from, float to, float[] y, string plotName, Color color,
+            Vector3 shift = default, int iterationStep = 1)
+        {
+            var x = new float[y.Length/iterationStep];
+            var step = (to - from) / y.Length;
+            for (int i = 0; i < y.Length; i += iterationStep)
+            {
+                x[i/iterationStep] = Mathf.Log10(10 + from + i * step);
+            }
+            Plot(x, y, plotName, color, shift);
+        }
         
         public void Plot(float from, float to, int[] y, string plotName, Color color, Vector3 shift = default)
         {

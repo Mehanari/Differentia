@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 
-namespace Src.Math.CirclesArt
+namespace Src.Math.CirclesArt.GeneticAlgorithms.GAVariants
 {
     /// <summary>
     /// The idea of this GA is to introduce so-called severe mutation's: replacements of entire circles

@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
 
-namespace Src.Math.CirclesArt
+namespace Src.Math.CirclesArt.GeneticAlgorithms.GAVariants
 {
     /// <summary>
     /// The idea here is to define a set of most important dots of the drawing

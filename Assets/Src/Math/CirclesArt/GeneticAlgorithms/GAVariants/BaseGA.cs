@@ -5,7 +5,7 @@ using UnityEngine;
 using Debug = UnityEngine.Debug;
 using Random = UnityEngine.Random;
 
-namespace Src.Math.CirclesArt
+namespace Src.Math.CirclesArt.GeneticAlgorithms.GAVariants
 {
     /// <summary>
     /// Basic genetic algorithm for finding a set of circles that draws a figure (or something close to it)
@@ -52,25 +52,7 @@ namespace Src.Math.CirclesArt
         //but I don't see any significant problems and other easy enough solutions as for now.
         protected (int index, Vector3 point)[] CurrentFitKeyPoints;
 
-        protected class Specimen
-        {
-            public Circle[] Circles;
 
-            //Appeal is a general utility function value used to sort specimens.
-            //In basic GA implementation it is 1 divided by max error module. 
-            public float Appeal;
-
-            public Vector3[] LineDots;
-
-            //Vectors from drawing key points to specimen's actual drawing points.
-            public Vector3[] Errors;
-            //Array of error vectors magnitudes. For the sake of not recalculating 
-            //this module every time it is needed.
-            public float[] ErrorsModules;
-            //Same as for ErrorsModules, but for angles.
-            public float[] ErrorAngles;
-            public float MaxError;
-        }
 
         /// <summary>
         /// Compares specimens just by their appeal.
