@@ -13,6 +13,13 @@ namespace Src.OptimalControlProblems.PendulumControl
         [SerializeField] private float length;
         [SerializeField] private float initialAngle;
         [SerializeField] private float initialAngularVelocity;
+
+        [Header("Control generation parameters")] 
+        [SerializeField] private int controlSamples = 10000;
+        [SerializeField] private float controlTime = 1f;
+        [SerializeField] private float targetAngle = Mathf.PI / 2;
+        [SerializeField] private float controlTolerance = 0.0001f;
+        [SerializeField] private float derivativeDelta = 0.00001f;
         [Header("Visualisation")]
         [SerializeField] private PendulumView view;
 
@@ -24,10 +31,15 @@ namespace Src.OptimalControlProblems.PendulumControl
         {
             base.Start();
 
-            Func<float, float> controlFunction = (t) =>
+            var controlGenerator = new ThrowControlGenerator
             {
-                return 5f;
+                Gravity = g,
+                PendulumLength = length,
+                Tolerance = controlTolerance,
+                DerivativeDelta = derivativeDelta,
+                SamplesCount = controlSamples
             };
+            Control control = controlGenerator.GenerateControl(initialAngle, initialAngularVelocity, targetAngle, controlTime);
 
             _angles = new float[samplesCount];
             _velocities = new float[samplesCount];
@@ -38,7 +50,8 @@ namespace Src.OptimalControlProblems.PendulumControl
             {
                 var startVelocity = _velocities[i-1];
                 var currentAngle = _angles[i-1];
-                var acceleration = -(g / length) * Mathf.Sin(currentAngle) + controlFunction(i * TimeStep);
+                var acceleration = -(g / length) * Mathf.Sin(currentAngle) + control.ControlInput(i * TimeStep);
+                //var acceleration = -(g / length) * Mathf.Sin(currentAngle);
                 var endVelocity = startVelocity + TimeStep * acceleration;
                 var averageVelocity = (startVelocity + endVelocity) / 2;
                 var nextAngle = currentAngle + averageVelocity * TimeStep;

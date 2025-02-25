@@ -65,14 +65,16 @@ namespace Src.OptimalControlProblems.PendulumControl
         }
         
         public State InitialState { get; set; }
+        public float Gravity { get; set; } = 9.81f;
+        public float Length { get; set; } = 1f;
 
         private State Difference(State current)
         {
             return new State
             {
                 Theta = current.Omega,
-                Omega = -Mathf.Sin(current.Theta) - current.Lambda2,
-                Lambda1 = current.Lambda2 * Mathf.Cos(current.Theta),
+                Omega = -(Gravity/Length)*Mathf.Sin(current.Theta) - current.Lambda2,
+                Lambda1 = current.Lambda2 * (Gravity/Length) * Mathf.Cos(current.Theta),
                 Lambda2 = -current.Lambda1
             };
         }
@@ -83,7 +85,7 @@ namespace Src.OptimalControlProblems.PendulumControl
         /// <param name="current"></param>
         /// <param name="deltaTime"></param>
         /// <returns></returns>
-        private State GetNextStateRK4(State current, float deltaTime)
+        public State GetNextStateRK4(State current, float deltaTime)
         {
             var k1 = Difference(current) * deltaTime;
             var k2 = Difference(current + k1 / 2) * deltaTime;
@@ -91,6 +93,11 @@ namespace Src.OptimalControlProblems.PendulumControl
             var k4 = Difference(current + k3) * deltaTime;
             var final = current + (k1 + k2 * 2 + k3 * 3 + k4) / 6;
             return final;
+        }
+
+        public State GetNextStateNewton(State current, float deltaTime)
+        {
+            return current + Difference(current) * deltaTime;
         }
 
         public State[] Solve(float timePeriod, int samples)

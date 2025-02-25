@@ -60,5 +60,21 @@ namespace Src
 
             return result;
         }
+
+        public static Vector operator -(Vector a, Vector b)
+        {
+            if (a.Length != b.Length)
+            {
+                throw new InvalidOperationException("Cannot subtract vectors of different length.");
+            }
+
+            var result = new Vector(a.Length);
+            for (int i = 0; i < a.Length; i++)
+            {
+                result[i] = a[i] - b[i];
+            }
+
+            return result;
+        }
     }
 }
