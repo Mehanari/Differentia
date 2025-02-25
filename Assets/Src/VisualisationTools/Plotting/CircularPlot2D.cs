@@ -27,7 +27,7 @@ namespace Src.VisualisationTools.Plotting
                 var radius = radii[i];
                 var angle = angles[i];
                 var vector = new Vector2(center.x + radius, center.y);
-                vector = VectorUtils.Rotate(vector, angle);
+                vector = Vector2Utils.Rotate(vector, angle);
                 line.SetPosition(i, vector);
             }
         }

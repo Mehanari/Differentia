@@ -15,6 +15,7 @@ namespace Src.Examples
     
         private string tangentLineName = "Tangent line";
         private Func<float, float> function = (x) => Mathf.Sin(x);
+        private float Step => Mathf.Abs(to - from) / samplesCount;
         
         private void Start()
         {
@@ -39,14 +40,7 @@ namespace Src.Examples
         private void DrawTangentLine(float point)
         {
             point = Mathf.Clamp(point, from, to);
-            var pointNormalized = (point - from) / (to - from);
-            var differentialValueIndex = Mathf.RoundToInt(pointNormalized * samplesCount);
-            if (differentialValueIndex >= samplesCount)
-            {
-                differentialValueIndex = samplesCount - 1;
-            }
-            var differential = CalculusUtils.Differentiate(function, from, to, samplesCount);
-            var differentialValue = differential[differentialValueIndex];
+            var differentialValue = (function(point + Step) - function(point))/Step;
             Func<float, float> tangentLine = (x) => function(point) + differentialValue * (x - point);
             var tangentLineValues = CalculusUtils.Sample(tangentLine, from, to, samplesCount);
             plotter2D.Plot(from, to, tangentLineValues, tangentLineName, Color.blue);

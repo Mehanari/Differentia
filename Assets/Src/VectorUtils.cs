@@ -2,7 +2,7 @@
 
 namespace Src
 {
-    public class VectorUtils
+    public class Vector2Utils
     {
         public static Vector2 Rotate(Vector2 v, float delta) {
             return new Vector2(

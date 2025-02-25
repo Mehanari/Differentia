@@ -62,7 +62,7 @@ namespace Src.DynamicSimulations.BallAndFans
                             continue;
                         }
                         reflectionNormal = touchNormal; //We use the last touch normal to reflect speed vector.
-                        var angle = VectorUtils.MinAngleRad(displacementVector, touchNormal);
+                        var angle = Vector2Utils.MinAngleRad(displacementVector, touchNormal);
                         var deepening = touchNormal.magnitude / Mathf.Cos(angle);
                         totalDeepening += deepening;
                     }
