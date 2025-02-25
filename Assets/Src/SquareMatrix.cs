@@ -40,6 +40,32 @@ namespace Src
             set => _values[i, j] = value;
         }
 
+        public SquareMatrix Inverse()
+        {
+            var determinant = Determinant();
+            var adjoint = Adjoint();
+            return adjoint / determinant;
+        }
+        
+        public SquareMatrix Adjoint()
+        {
+            return CofactorMatrix().Transpose();
+        }
+
+        public SquareMatrix Transpose()
+        {
+            var newMatrix = new SquareMatrix(Size);
+            for (int i = 0; i < Size; i++)
+            {
+                for (int j = 0; j < Size; j++)
+                {
+                    newMatrix[j, i] = _values[i, j];
+                }
+            }
+
+            return newMatrix;
+        }
+        
         public SquareMatrix CofactorMatrix()
         {
             var result = new SquareMatrix(Size);
@@ -62,8 +88,14 @@ namespace Src
                     "Cannot find cofactor. Indices are out of the matrix boundaries.");
             }
 
-            var subMatrix = SubMatrix(i, j);
-            return subMatrix.Determinant();
+            var minor = Minor(i, j);
+            var sign = (i + j) % 2 == 0 ? 1 : -1;
+            return sign * minor;
+        }
+
+        public float Minor(int i, int j)
+        {
+            return SubMatrix(i, j).Determinant();
         }
 
         public float Determinant()
@@ -146,6 +178,25 @@ namespace Src
         public static bool operator !=(SquareMatrix a, SquareMatrix b)
         {
             return !(a == b);
+        }
+
+        public static SquareMatrix operator *(SquareMatrix matrix, float number)
+        {
+            var result = new SquareMatrix(matrix.Size);
+            for (int i = 0; i < matrix.Size; i++)
+            {
+                for (int j = 0; j < matrix.Size; j++)
+                {
+                    result[i, j] = matrix[i, j] * number;
+                }
+            }
+
+            return result;
+        }
+
+        public static SquareMatrix operator /(SquareMatrix matrix, float number)
+        {
+            return matrix * (1 / number);
         }
 
         public override string ToString()

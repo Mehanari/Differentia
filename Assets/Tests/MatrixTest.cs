@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using NUnit.Framework;
 using Src;
+using UnityEngine;
 
 namespace Tests
 {
@@ -182,6 +183,173 @@ namespace Tests
             });
             determinant = 35;
             yield return new TestCaseData(matrix, determinant);
+        }
+
+        [Test]
+        [TestCaseSource(nameof(TransposeTestData))]
+        public void TestTranspose(SquareMatrix matrix, SquareMatrix expectedTranspose)
+        {
+            var actualTranspose = matrix.Transpose();
+            if (actualTranspose != expectedTranspose)
+            {
+                Assert.Fail("Transpose matrix is incorrect!\nExpected matrix:\n" + expectedTranspose + 
+                            "\nActual matrix:\n" + actualTranspose);
+            }
+            else
+            {
+                Assert.Pass("Matrices match.\nExpected matrix:\n" + expectedTranspose + 
+                            "\nActual matrix:\n" + actualTranspose);
+            }
+        }
+
+        public static IEnumerable<TestCaseData> TransposeTestData()
+        {
+            var matrix = new SquareMatrix(new float[,]
+            {
+                { 1, 2 },
+                { 3, 4 }
+            });
+            var transpose = new SquareMatrix(new float[,]
+            {
+                { 1, 3 },
+                { 2, 4 }
+            });
+            yield return new TestCaseData(matrix, transpose);
+
+            matrix = new SquareMatrix(new float[,]
+            {
+                { 1, 2, 3 },
+                { 4, 5, 6 },
+                { 7, 8, 9 }
+            });
+            transpose = new SquareMatrix(new float[,]
+            {
+                { 1, 4, 7 },
+                { 2, 5, 8 },
+                { 3, 6, 9 }
+            });
+            yield return new TestCaseData(matrix, transpose);
+        }
+
+        [Test]
+        [TestCaseSource(nameof(DivisionTestData))]
+        public void DivisionTest(SquareMatrix matrix, float divider, SquareMatrix expected)
+        {
+            var actual = matrix / divider;
+            var precision = 0.0000001f;
+            for (int i = 0; i < matrix.Size; i++)
+            {
+                for (int j = 0; j < matrix.Size; j++)
+                {
+                    Assert.AreEqual(expected[i, j], actual[i, j], precision);
+                }
+            }
+        }
+
+        public static IEnumerable<TestCaseData> DivisionTestData()
+        {
+            var matrix = new SquareMatrix(new float[,]
+            {
+                { 1, 2, },
+                { 3, 4 }
+            });
+            var divider = 2f;
+            var expected = new SquareMatrix(new float[,]
+            {
+                { 0.5f, 1f },
+                { 1.5f, 2f }
+            });
+            yield return new TestCaseData(matrix, divider, expected);
+        }
+
+        [Test]
+        [TestCaseSource(nameof(InverseTestData))]
+        public void InverseTest(SquareMatrix matrix, SquareMatrix expected)
+        {
+            var actual = matrix.Inverse();
+            var precision = 0.0000001f;
+            for (int i = 0; i < matrix.Size; i++)
+            {
+                for (int j = 0; j < matrix.Size; j++)
+                {
+                    var distance = Mathf.Abs(actual[i, j] - expected[i, j]);
+                    if (distance > precision)
+                    {
+                        Assert.Fail("Inverse matrix is incorrect!\nExpected matrix:\n" + expected + 
+                                    "\nActual matrix:\n" + actual);
+                    }
+                }
+            }
+        }
+
+        public static IEnumerable<TestCaseData> InverseTestData()
+        {
+            var matrix = new SquareMatrix(new float[,]
+            {
+                { 1, 2, 3 },
+                { 3, 2, 1 },
+                { 2, 1, 3 }
+            });
+            var inverse = new SquareMatrix(new float[,]
+            {
+                { -5, 3, 4 },
+                { 7, 3, -8 },
+                { 1, -3, 4 }
+            }) / 12;
+            yield return new TestCaseData(matrix, inverse);
+
+            matrix = new SquareMatrix(new float[,]
+            {
+                { 5, 2, -3, 4 },
+                { 3, 8, 0, 1 },
+                { 2, -5, 17, 2 },
+                { -1, 0, 1, 3 }
+            });
+            inverse = new SquareMatrix(new float[,]
+            {
+                { 387, -33, 102, -573 },
+                { -166, 345, -37, 131 },
+                { -114, 111, 132, 27 },
+                { 167, -48, -10, 671 }
+            }) / 2613;
+            yield return new TestCaseData(matrix, inverse);
+        }
+
+        [Test]
+        [TestCaseSource(nameof(CofactorTestData))]
+        public void CofactorTest(SquareMatrix matrix, SquareMatrix expected)
+        {
+            var actual = matrix.CofactorMatrix();
+            var precision = 0.0000001f;
+            for (int i = 0; i < matrix.Size; i++)
+            {
+                for (int j = 0; j < matrix.Size; j++)
+                {
+                    var distance = Mathf.Abs(actual[i, j] - expected[i, j]);
+                    if (distance > precision)
+                    {
+                        Assert.Fail("Cofactor matrix is incorrect!\nExpected matrix:\n" + expected + 
+                                    "\nActual matrix:\n" + actual);
+                    }
+                }
+            }
+        }
+
+        public static IEnumerable<TestCaseData> CofactorTestData()
+        {
+            var matrix = new SquareMatrix(new float[,]
+            {
+                { 1, 2, 3 },
+                { 4, 5, 6 },
+                { 5, 4, 3 }
+            });
+            var cofactors = new SquareMatrix(new float[,]
+            {
+                { -9, 18, -9 },
+                { 6, -12, 6 },
+                { -3, 6, -3 }
+            });
+            yield return new TestCaseData(matrix, cofactors);
         }
     }
 }
