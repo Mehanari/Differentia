@@ -1,7 +1,7 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using NUnit.Framework;
 using Src;
-using UnityEngine;
 
 namespace Tests
 {
@@ -19,13 +19,13 @@ namespace Tests
         
         public static IEnumerable<TestCaseData> EqualityOperatorsData()
         {
-            var a = new SquareMatrix(new float[,]
+            var a = new SquareMatrix(new Double[,]
             {
                 {1, 2, 3},
                 {4, 5, 6},
                 {7, 8, 9}
             });
-            var b = new SquareMatrix(new float[,]
+            var b = new SquareMatrix(new Double[,]
             {
                 {1, 2, 3},
                 {4, 5, 6},
@@ -34,13 +34,13 @@ namespace Tests
             var areEqual = true;
             yield return new TestCaseData(a, b, areEqual);
             
-            a = new SquareMatrix(new float[,]
+            a = new SquareMatrix(new Double[,]
             {
                 {1, 2, 3},
                 {4, 5, 6},
                 {7, 8, 9}
             });
-            b = new SquareMatrix(new float[,]
+            b = new SquareMatrix(new Double[,]
             {
                 {1, 3, 3},
                 {4, -5, 6},
@@ -67,7 +67,7 @@ namespace Tests
 
         public static IEnumerable<TestCaseData> SubMatrixTestData()
         {
-            var matrix = new SquareMatrix(new float[,]
+            var matrix = new SquareMatrix(new Double[,]
             {
                 {1, 2, 3},
                 {4, 5, 6},
@@ -75,7 +75,7 @@ namespace Tests
             });
             var i = 0;
             var j = 0;
-            var expected = new SquareMatrix(new float[,]
+            var expected = new SquareMatrix(new Double[,]
             {
                 {5, 6},
                 {8, 9}
@@ -85,7 +85,7 @@ namespace Tests
             //Matrix stays the same
             i = 0;
             j = 1;
-            expected = new SquareMatrix(new float[,]
+            expected = new SquareMatrix(new Double[,]
             {
                 {4, 6},
                 {7, 9}
@@ -95,7 +95,7 @@ namespace Tests
             //Matrix stays the same
             i = 0;
             j = 2;
-            expected = new SquareMatrix(new float[,]
+            expected = new SquareMatrix(new Double[,]
             {
                 {4, 5},
                 {7, 8}
@@ -103,7 +103,7 @@ namespace Tests
             yield return new TestCaseData(matrix, i, j, expected);
             
             //MATRIX CHANGES HERE
-            matrix = new SquareMatrix(new float[,]
+            matrix = new SquareMatrix(new Double[,]
             {
                 {2, 1, 3, 4},
                 {0, -1, 2, 1},
@@ -112,7 +112,7 @@ namespace Tests
             });
             i = 0;
             j = 0;
-            expected = new SquareMatrix(new float[,]
+            expected = new SquareMatrix(new Double[,]
             {
                 {-1, 2, 1},
                 {2, 0, 5},
@@ -123,7 +123,7 @@ namespace Tests
             //matrix stays the same
             i = 0;
             j = 1;
-            expected = new SquareMatrix(new float[,]
+            expected = new SquareMatrix(new Double[,]
             {
                 {0, 2, 1},
                 {3, 0, 5},
@@ -134,7 +134,7 @@ namespace Tests
             //matrix stays the same
             i = 0;
             j = 2;
-            expected = new SquareMatrix(new float[,]
+            expected = new SquareMatrix(new Double[,]
             {
                 {0, -1, 1},
                 {3, 2, 5},
@@ -145,7 +145,7 @@ namespace Tests
             //matrix stays the same
             i = 0;
             j = 3;
-            expected = new SquareMatrix(new float[,]
+            expected = new SquareMatrix(new Double[,]
             {
                 {0, -1, 2},
                 {3, 2, 0},
@@ -156,7 +156,7 @@ namespace Tests
 
         [Test]
         [TestCaseSource(nameof(DeterminantTestData))]
-        public void TestDeterminant(SquareMatrix matrix, float expectedDeterminant)
+        public void TestDeterminant(SquareMatrix matrix, Double expectedDeterminant)
         {
             var precision = 0.000001f;
             var actual = matrix.Determinant();
@@ -165,7 +165,7 @@ namespace Tests
 
         public static IEnumerable<TestCaseData> DeterminantTestData()
         {
-            var matrix = new SquareMatrix(new float[,]
+            var matrix = new SquareMatrix(new Double[,]
             {
                 { 6, 1, 1 },
                 { 4, -2, 5 },
@@ -174,7 +174,7 @@ namespace Tests
             var determinant = -306f;
             yield return new TestCaseData(matrix, determinant);
             
-            matrix = new SquareMatrix(new float[,]
+            matrix = new SquareMatrix(new Double[,]
             {
                 { 2, 1, 3, 4 },
                 { 0, -1, 2, 1 },
@@ -204,25 +204,25 @@ namespace Tests
 
         public static IEnumerable<TestCaseData> TransposeTestData()
         {
-            var matrix = new SquareMatrix(new float[,]
+            var matrix = new SquareMatrix(new Double[,]
             {
                 { 1, 2 },
                 { 3, 4 }
             });
-            var transpose = new SquareMatrix(new float[,]
+            var transpose = new SquareMatrix(new Double[,]
             {
                 { 1, 3 },
                 { 2, 4 }
             });
             yield return new TestCaseData(matrix, transpose);
 
-            matrix = new SquareMatrix(new float[,]
+            matrix = new SquareMatrix(new Double[,]
             {
                 { 1, 2, 3 },
                 { 4, 5, 6 },
                 { 7, 8, 9 }
             });
-            transpose = new SquareMatrix(new float[,]
+            transpose = new SquareMatrix(new Double[,]
             {
                 { 1, 4, 7 },
                 { 2, 5, 8 },
@@ -233,7 +233,7 @@ namespace Tests
 
         [Test]
         [TestCaseSource(nameof(DivisionTestData))]
-        public void DivisionTest(SquareMatrix matrix, float divider, SquareMatrix expected)
+        public void DivisionTest(SquareMatrix matrix, Double divider, SquareMatrix expected)
         {
             var actual = matrix / divider;
             var precision = 0.0000001f;
@@ -248,13 +248,13 @@ namespace Tests
 
         public static IEnumerable<TestCaseData> DivisionTestData()
         {
-            var matrix = new SquareMatrix(new float[,]
+            var matrix = new SquareMatrix(new Double[,]
             {
                 { 1, 2, },
                 { 3, 4 }
             });
             var divider = 2f;
-            var expected = new SquareMatrix(new float[,]
+            var expected = new SquareMatrix(new Double[,]
             {
                 { 0.5f, 1f },
                 { 1.5f, 2f }
@@ -267,12 +267,12 @@ namespace Tests
         public void InverseTest(SquareMatrix matrix, SquareMatrix expected)
         {
             var actual = matrix.Inverse();
-            var precision = 0.0000001f;
+            var precision = 0.0000001d;
             for (int i = 0; i < matrix.Size; i++)
             {
                 for (int j = 0; j < matrix.Size; j++)
                 {
-                    var distance = Mathf.Abs(actual[i, j] - expected[i, j]);
+                    var distance = System.Math.Abs(actual[i, j] - expected[i, j]);
                     if (distance > precision)
                     {
                         Assert.Fail("Inverse matrix is incorrect!\nExpected matrix:\n" + expected + 
@@ -284,13 +284,13 @@ namespace Tests
 
         public static IEnumerable<TestCaseData> InverseTestData()
         {
-            var matrix = new SquareMatrix(new float[,]
+            var matrix = new SquareMatrix(new Double[,]
             {
                 { 1, 2, 3 },
                 { 3, 2, 1 },
                 { 2, 1, 3 }
             });
-            var inverse = new SquareMatrix(new float[,]
+            var inverse = new SquareMatrix(new Double[,]
             {
                 { -5, 3, 4 },
                 { 7, 3, -8 },
@@ -298,14 +298,14 @@ namespace Tests
             }) / 12;
             yield return new TestCaseData(matrix, inverse);
 
-            matrix = new SquareMatrix(new float[,]
+            matrix = new SquareMatrix(new Double[,]
             {
                 { 5, 2, -3, 4 },
                 { 3, 8, 0, 1 },
                 { 2, -5, 17, 2 },
                 { -1, 0, 1, 3 }
             });
-            inverse = new SquareMatrix(new float[,]
+            inverse = new SquareMatrix(new Double[,]
             {
                 { 387, -33, 102, -573 },
                 { -166, 345, -37, 131 },
@@ -325,7 +325,7 @@ namespace Tests
             {
                 for (int j = 0; j < matrix.Size; j++)
                 {
-                    var distance = Mathf.Abs(actual[i, j] - expected[i, j]);
+                    var distance = Math.Abs(actual[i, j] - expected[i, j]);
                     if (distance > precision)
                     {
                         Assert.Fail("Cofactor matrix is incorrect!\nExpected matrix:\n" + expected + 
@@ -337,13 +337,13 @@ namespace Tests
 
         public static IEnumerable<TestCaseData> CofactorTestData()
         {
-            var matrix = new SquareMatrix(new float[,]
+            var matrix = new SquareMatrix(new Double[,]
             {
                 { 1, 2, 3 },
                 { 4, 5, 6 },
                 { 5, 4, 3 }
             });
-            var cofactors = new SquareMatrix(new float[,]
+            var cofactors = new SquareMatrix(new Double[,]
             {
                 { -9, 18, -9 },
                 { 6, -12, 6 },

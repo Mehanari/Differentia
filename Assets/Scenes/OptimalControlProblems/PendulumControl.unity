@@ -424,7 +424,7 @@ MonoBehaviour:
   length: 1
   initialAngle: 0
   initialAngularVelocity: 0
-  controlSamples: 100000
+  controlSamples: 10000
   controlTime: 1
   targetAngle: 1.5707964
   controlTolerance: 0.0001

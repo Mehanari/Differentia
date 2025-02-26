@@ -15,22 +15,22 @@ namespace Src.OptimalControlProblems.PendulumControl
         /// </summary>
         public int SamplesCount { get; set; } = 1000;
         
-        public float Tolerance = 0.001f;
+        public double Tolerance = 0.001f;
         
         /// <summary>
         /// Used in Jacobian calculation.
         /// </summary>
-        public float DerivativeDelta { get; set; } = 0.0001f;
+        public double DerivativeDelta { get; set; } = 0.0001f;
 
         public int MaxIterations { get; set; } = 100;
-        public float Gravity { get; set; } = 9.81f;
-        public float PendulumLength { get; set; } = 1f;
+        public double Gravity { get; set; } = 9.81f;
+        public double PendulumLength { get; set; } = 1f;
         
-        public Control GenerateControl(float initialAngle, float initialVelocity, float targetAngle,
-            float time)
+        public Control GenerateControl(double initialAngle, double initialVelocity, double targetAngle,
+            double time)
         {
             var optimalTrajectory = FindOptimalTrajectory(initialAngle, initialVelocity, targetAngle, time);
-            var controlForces = new float[SamplesCount];
+            var controlForces = new double[SamplesCount];
             for (int i = 0; i < SamplesCount; i++)
             {
                 controlForces[i] = -optimalTrajectory[i].Lambda2 / 2;
@@ -49,8 +49,8 @@ namespace Src.OptimalControlProblems.PendulumControl
         /// <param name="targetAngle"></param>
         /// <param name="time"></param>
         /// <returns></returns>
-        private PendulumODE.State[] FindOptimalTrajectory(float initialAngle, float initialVelocity, float targetAngle,
-            float time)
+        private PendulumODE.State[] FindOptimalTrajectory(double initialAngle, double initialVelocity, double targetAngle,
+            double time)
         {
             //Vector of lambda values. 
             var lambdas = new Vector(2);
@@ -107,7 +107,7 @@ namespace Src.OptimalControlProblems.PendulumControl
             // [0, 1] - how final theta changes with a small change of initial lambda2?
             // [1, 0] - how final lambda2 changes with a small change of initial lambda1?
             // [1, 1] - how final lambda2 changes with a small change of initial lambda2?
-            SquareMatrix Jacobian(float lambda1_0, float lambda2_0)
+            SquareMatrix Jacobian(double lambda1_0, double lambda2_0)
             {
                 var unperturbedOde = new PendulumODE()
                 {

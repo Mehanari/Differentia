@@ -50,7 +50,7 @@ namespace Src.OptimalControlProblems.PendulumControl
             {
                 var startVelocity = _velocities[i-1];
                 var currentAngle = _angles[i-1];
-                var acceleration = -(g / length) * Mathf.Sin(currentAngle) + control.ControlInput(i * TimeStep);
+                var acceleration = -(g / length) * Mathf.Sin(currentAngle) + (float)control.ControlInput(i * TimeStep);
                 //var acceleration = -(g / length) * Mathf.Sin(currentAngle);
                 var endVelocity = startVelocity + TimeStep * acceleration;
                 var averageVelocity = (startVelocity + endVelocity) / 2;

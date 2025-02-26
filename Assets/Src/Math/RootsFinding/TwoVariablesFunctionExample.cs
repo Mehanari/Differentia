@@ -67,8 +67,8 @@ namespace Src.Math.RootsFinding
                 vector[0] = x0;
                 vector[1] = y0;
                 var next = vector - differentials(x0, y0) * jacobianApprox(x0, y0).Inverse();
-                x0 = next[0];
-                y0 = next[1];
+                x0 = (float) next[0];
+                y0 = (float) next[1];
             }
 
             float zMin = f(x0, y0);

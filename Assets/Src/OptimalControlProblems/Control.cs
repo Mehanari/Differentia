@@ -2,6 +2,6 @@
 {
     public abstract class Control
     {
-        public abstract float ControlInput(float time);
+        public abstract double ControlInput(double time);
     }
 }

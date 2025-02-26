@@ -9,13 +9,13 @@ namespace Src.OptimalControlProblems.PendulumControl
     /// </summary>
     public class LerpControl : Control
     {
-        public float Time { get; }
+        public double Time { get; }
 
-        private readonly float[] _controlSamples;
+        private readonly double[] _controlSamples;
 
-        private float TimeStep => Time / _controlSamples.Length;
+        private double TimeStep => Time / _controlSamples.Length;
 
-        public LerpControl(float time, float[] controlSamples)
+        public LerpControl(double time, double[] controlSamples)
         {
             Time = time;
             _controlSamples = controlSamples;
@@ -28,7 +28,7 @@ namespace Src.OptimalControlProblems.PendulumControl
         /// <param name="time"></param>
         /// <returns></returns>
         /// <exception cref="NotImplementedException"></exception>
-        public override float ControlInput(float time)
+        public override double ControlInput(double time)
         {
             var normalized = time / Time;
             if (normalized > 1 || normalized < 0)
@@ -36,9 +36,9 @@ namespace Src.OptimalControlProblems.PendulumControl
                 return 0f;
             }
 
-            var lIndex = Mathf.FloorToInt(_controlSamples.Length * normalized);
-            var rIndex = Mathf.CeilToInt(_controlSamples.Length * normalized);
-            //For the case of float error
+            var lIndex = (int)System.Math.Floor(_controlSamples.Length * normalized);
+            var rIndex = (int)System.Math.Ceiling(_controlSamples.Length * normalized);
+            //For the case of double error
             if (rIndex >= _controlSamples.Length)
             {
                 rIndex = _controlSamples.Length - 1;
@@ -53,7 +53,7 @@ namespace Src.OptimalControlProblems.PendulumControl
             var alpha = (time - lTime) / (rTime - lTime);
             var lVal = _controlSamples[lIndex];
             var rVal = _controlSamples[rIndex];
-            var interpolated = Mathf.Lerp(lVal, rVal, alpha);
+            var interpolated = alpha*(rVal - lVal) + lVal;
 
             return interpolated;
         }

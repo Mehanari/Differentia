@@ -43,7 +43,7 @@ namespace Src.OptimalControlProblems.PendulumControl
                 };
                 var thetaFinal = ode.Solve(time, odeSamples)[odeSamples - 1].Theta;
                 lambda1Values[i] = lambda1_0;
-                thetaFinalValues[i] = thetaFinal;
+                thetaFinalValues[i] = (float) thetaFinal;
             }
 
             plotter.Plot(lambda1Values, thetaFinalValues, "Theta sensitivity", Color.green);

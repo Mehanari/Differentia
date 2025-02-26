@@ -7,34 +7,34 @@ namespace Src
     {
         public int Size { get; }
 
-        private readonly float[,] _values;
+        private readonly double[,] _values;
         
         public SquareMatrix(int size)
         {
             Size = size;
-            _values = new float[size, size];
+            _values = new double[size, size];
         }
 
-        public SquareMatrix(float[,] floatMatrix)
+        public SquareMatrix(double[,] doubleMatrix)
         {
-            if (floatMatrix.GetLength(0) != floatMatrix.GetLength(1))
+            if (doubleMatrix.GetLength(0) != doubleMatrix.GetLength(1))
             {
                 throw new InvalidOperationException(
                     "Cannot create SquareMatrix from two-dimensional array with different length and height");
             }
 
-            Size = floatMatrix.GetLength(0);
-            _values = new float[Size, Size];
+            Size = doubleMatrix.GetLength(0);
+            _values = new double[Size, Size];
             for (int i = 0; i < Size; i++)
             {
                 for (int j = 0; j < Size; j++)
                 {
-                    _values[i, j] = floatMatrix[i, j];
+                    _values[i, j] = doubleMatrix[i, j];
                 }
             }
         }
 
-        public float this[int i, int j]
+        public double this[int i, int j]
         {
             get => _values[i, j];
             set => _values[i, j] = value;
@@ -80,7 +80,7 @@ namespace Src
             return result;
         }
 
-        public float Cofactor(int i, int j)
+        public double Cofactor(int i, int j)
         {
             if (i+1 > Size || j + 1 > Size)
             {
@@ -93,12 +93,12 @@ namespace Src
             return sign * minor;
         }
 
-        public float Minor(int i, int j)
+        public double Minor(int i, int j)
         {
             return SubMatrix(i, j).Determinant();
         }
 
-        public float Determinant()
+        public double Determinant()
         {
             if (Size == 1)
             {
@@ -109,7 +109,7 @@ namespace Src
                 return _values[0, 0] * _values[1, 1] - _values[0, 1] * _values[1, 0];
             }
 
-            var determinant = 0f;
+            var determinant = 0d;
             var sign = 1;
             for (int i = 0; i < Size; i++)
             {
@@ -180,7 +180,7 @@ namespace Src
             return !(a == b);
         }
 
-        public static SquareMatrix operator *(SquareMatrix matrix, float number)
+        public static SquareMatrix operator *(SquareMatrix matrix, double number)
         {
             var result = new SquareMatrix(matrix.Size);
             for (int i = 0; i < matrix.Size; i++)
@@ -194,7 +194,7 @@ namespace Src
             return result;
         }
 
-        public static SquareMatrix operator /(SquareMatrix matrix, float number)
+        public static SquareMatrix operator /(SquareMatrix matrix, double number)
         {
             return matrix * (1 / number);
         }

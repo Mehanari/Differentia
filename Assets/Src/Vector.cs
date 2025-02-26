@@ -11,23 +11,23 @@ namespace Src
     {
         public int Length { get; }
 
-        private readonly float[] _values;
+        private readonly double[] _values;
 
         public Vector(int length)
         {
             Length = length;
-            _values = new float[length];
+            _values = new double[length];
         }
 
-        public float this[int i]
+        public double this[int i]
         {
             get => _values[i];
             set => _values[i] = value;
         }
 
-        public float MagnitudeSquare()
+        public double MagnitudeSquare()
         {
-            var sum = 0f;
+            var sum = 0d;
             foreach (var val in _values)
             {
                 sum += val * val;
@@ -36,9 +36,9 @@ namespace Src
             return sum;
         }
 
-        public float Magnitude()
+        public double Magnitude()
         {
-            return Mathf.Sqrt(MagnitudeSquare());
+            return System.Math.Sqrt(MagnitudeSquare());
         }
 
         public static Vector operator *(Vector vector, SquareMatrix matrix)

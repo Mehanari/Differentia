@@ -13,24 +13,24 @@ namespace Src.OptimalControlProblems.PendulumControl
             /// <summary>
             /// Angle of the pendulum.
             /// </summary>
-            public float Theta { get; set; }
+            public double Theta { get; set; }
         
             /// <summary>
             /// Angular velocity of a pendulum.
             /// </summary>
-            public float Omega { get; set; }
+            public double Omega { get; set; }
         
             /// <summary>
             /// Lagrange multiplier for the angle.
             /// </summary>
-            public float Lambda1 { get; set; }
+            public double Lambda1 { get; set; }
         
             /// <summary>
             /// Lagrange multiplier for the angular velocity.
             /// </summary>
-            public float Lambda2 { get; set; }
+            public double Lambda2 { get; set; }
 
-            public static State operator * (State state, float num)
+            public static State operator * (State state, double num)
             {
                 return new State
                 {
@@ -41,7 +41,7 @@ namespace Src.OptimalControlProblems.PendulumControl
                 };
             }
             
-            public static State operator / (State state, float num)
+            public static State operator / (State state, double num)
             {
                 return new State
                 {
@@ -65,16 +65,16 @@ namespace Src.OptimalControlProblems.PendulumControl
         }
         
         public State InitialState { get; set; }
-        public float Gravity { get; set; } = 9.81f;
-        public float Length { get; set; } = 1f;
+        public double Gravity { get; set; } = 9.81f;
+        public double Length { get; set; } = 1f;
 
         private State Difference(State current)
         {
             return new State
             {
                 Theta = current.Omega,
-                Omega = -(Gravity/Length)*Mathf.Sin(current.Theta) - current.Lambda2,
-                Lambda1 = current.Lambda2 * (Gravity/Length) * Mathf.Cos(current.Theta),
+                Omega = -(Gravity/Length)*System.Math.Sin(current.Theta) - current.Lambda2,
+                Lambda1 = current.Lambda2 * (Gravity/Length) * System.Math.Cos(current.Theta),
                 Lambda2 = -current.Lambda1
             };
         }
@@ -85,7 +85,7 @@ namespace Src.OptimalControlProblems.PendulumControl
         /// <param name="current"></param>
         /// <param name="deltaTime"></param>
         /// <returns></returns>
-        public State GetNextStateRK4(State current, float deltaTime)
+        public State GetNextStateRK4(State current, double deltaTime)
         {
             var k1 = Difference(current) * deltaTime;
             var k2 = Difference(current + k1 / 2) * deltaTime;
@@ -95,12 +95,12 @@ namespace Src.OptimalControlProblems.PendulumControl
             return final;
         }
 
-        public State GetNextStateNewton(State current, float deltaTime)
+        public State GetNextStateNewton(State current, double deltaTime)
         {
             return current + Difference(current) * deltaTime;
         }
 
-        public State[] Solve(float timePeriod, int samples)
+        public State[] Solve(double timePeriod, int samples)
         {
             var timeStep = timePeriod / samples;
             var states = new State[samples];
