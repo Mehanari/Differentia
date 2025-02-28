@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Text;
 
-namespace Src
+namespace Src.Math.Components
 {
-    public struct SquareMatrix
+    public readonly struct SquareMatrix
     {
         public int Size { get; }
 
@@ -197,6 +197,42 @@ namespace Src
         public static SquareMatrix operator /(SquareMatrix matrix, double number)
         {
             return matrix * (1 / number);
+        }
+
+        public static SquareMatrix operator +(SquareMatrix a, SquareMatrix b)
+        {
+            if (a.Size != b.Size)
+            {
+                throw new InvalidOperationException(
+                    "Cannot add matrices of different sizes.");
+            }
+
+            var result = new SquareMatrix(a.Size);
+            for (int i = 0; i < a.Size; i++)
+            {
+                for (int j = 0; j < a.Size; j++)
+                {
+                    result[i, j] = a[i, j] + b[i, j];
+                }
+            }
+
+            return result;
+        }
+
+        /// <summary>
+        /// Returns the identity matrix of a given size
+        /// </summary>
+        /// <param name="size"></param>
+        /// <returns></returns>
+        public static SquareMatrix I(int size)
+        {
+            var result = new SquareMatrix(size);
+            for (int i = 0; i < size; i++)
+            {
+                result[i, i] = 1;
+            }
+
+            return result;
         }
 
         public override string ToString()

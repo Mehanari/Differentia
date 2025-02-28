@@ -424,11 +424,11 @@ MonoBehaviour:
   length: 1
   initialAngle: 0
   initialAngularVelocity: 0
-  controlSamples: 10000
+  controlSamples: 1000
   controlTime: 1
   targetAngle: 1.5707964
-  controlTolerance: 0.0001
-  derivativeDelta: 0.0001
+  controlTolerance: 0.00001
+  derivativeDelta: 0.00001
   view: {fileID: 2097546519}
 --- !u!1 &1136603137
 GameObject:

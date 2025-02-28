@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using NUnit.Framework;
 using Src;
+using Src.Math.Components;
 
 namespace Tests
 {

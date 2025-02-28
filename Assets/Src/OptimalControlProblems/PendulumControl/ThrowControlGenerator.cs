@@ -1,4 +1,6 @@
 ﻿using System;
+using Src.Math.Components;
+using Src.Math.RootsFinding;
 
 namespace Src.OptimalControlProblems.PendulumControl
 {
@@ -22,7 +24,7 @@ namespace Src.OptimalControlProblems.PendulumControl
         /// </summary>
         public double DerivativeDelta { get; set; } = 0.0001f;
 
-        public int MaxIterations { get; set; } = 100;
+        public int MaxIterations { get; set; } = 1000;
         public double Gravity { get; set; } = 9.81f;
         public double PendulumLength { get; set; } = 1f;
         
@@ -56,107 +58,38 @@ namespace Src.OptimalControlProblems.PendulumControl
             var lambdas = new Vector(2);
             lambdas[0] = 0f;
             lambdas[1] = 0f;
-            var displacement = new Vector(2);
-            PendulumODE.State[] trajectory;
-            var iteration = 0;
-            do
-            {
-                iteration++;
-                var ode = new PendulumODE
+            var objective = new FuncVector(
+                (v) =>
                 {
-                    InitialState = new PendulumODE.State
-                    {
-                        Theta = initialAngle,
-                        Omega = initialVelocity,
-                        Lambda1 = lambdas[0],
-                        Lambda2 = lambdas[1]
-                    },
-                    Gravity = this.Gravity,
-                    Length = this.PendulumLength
-                };
-                trajectory = ode.Solve(time, SamplesCount);
-                var final = trajectory[SamplesCount - 1];
-                displacement = Displacement(final);
-                var jacobian = Jacobian(lambdas[0], lambdas[1]);
-                if (jacobian[0, 0] == 0 || jacobian[1, 0] == 0 || jacobian[1, 0] == 0 || jacobian[1, 1] == 0)
+                    var ode = GetODE(initialAngle, initialVelocity, v);
+                    return ode.Solve(time, SamplesCount)[SamplesCount - 1].Theta - targetAngle;
+                },
+                (v) =>
                 {
-                    throw new Exception("Sensitivity issue occured. Breaking the process");
+                    var ode = GetODE(initialAngle, initialVelocity, v);
+                    return ode.Solve(time, SamplesCount)[SamplesCount - 1].Lambda2;
                 }
-                var jacobianInverse = jacobian.Inverse();
-                var step = displacement * jacobianInverse;
-                lambdas -= step;
-            } while (displacement.Magnitude() > Tolerance || iteration < MaxIterations);
-
-            return trajectory;
-            
-            
-            // Function below calculates displacement of final state and target state.
-            // Returns a 2-elements vector.
-            // First is angle difference (final angle - target angle).
-            // Second is lambda2 difference (same principle here).
-            Vector Displacement(PendulumODE.State finalState)
-            {
-                var result = new Vector(2);
-                result[0] = targetAngle - finalState.Theta;
-                result[1] = finalState.Lambda2;
-                return result;
-            }
-
-            //Returns a Jacobian (partial derivatives matrix) with 4 derivatives:
-            // [0, 0] - how final theta changes with a small change of initial lambda1?
-            // [0, 1] - how final theta changes with a small change of initial lambda2?
-            // [1, 0] - how final lambda2 changes with a small change of initial lambda1?
-            // [1, 1] - how final lambda2 changes with a small change of initial lambda2?
-            SquareMatrix Jacobian(double lambda1_0, double lambda2_0)
-            {
-                var unperturbedOde = new PendulumODE()
-                {
-                    InitialState = new PendulumODE.State
-                    {
-                        Theta = initialAngle,
-                        Omega = initialVelocity,
-                        Lambda1 = lambda1_0 ,
-                        Lambda2 = lambda2_0
-                    },
-                    Gravity = this.Gravity,
-                    Length = this.PendulumLength
-                };
-                var l1PerturbOde = new PendulumODE
-                {
-                    InitialState = new PendulumODE.State
-                    {
-                        Theta = initialAngle,
-                        Omega = initialVelocity,
-                        Lambda1 = lambda1_0 + DerivativeDelta,
-                        Lambda2 = lambda2_0
-                    },
-                    Gravity = this.Gravity,
-                    Length = this.PendulumLength
-                }; 
-                var l2PerturbOde = new PendulumODE()
-                {
-                    InitialState = new PendulumODE.State()
-                    {
-                        Theta = initialAngle,
-                        Omega = initialVelocity,
-                        Lambda1 = lambda1_0,
-                        Lambda2 = lambda2_0 + DerivativeDelta
-                    },
-                    Gravity = this.Gravity,
-                    Length = this.PendulumLength
-                };
-                var unperturbedFinalState = unperturbedOde.Solve(time, SamplesCount)[SamplesCount - 1];
-                var l1FinalState = l1PerturbOde.Solve(time, SamplesCount)[SamplesCount - 1]; //The final state of a system with small lambda1 change
-                var l2FinalState = l2PerturbOde.Solve(time, SamplesCount)[SamplesCount - 1]; //Same here, but for lambda2
-                var jacobian = new SquareMatrix(2);
-                jacobian[0, 0] = (l1FinalState.Theta - unperturbedFinalState.Theta) / DerivativeDelta;
-                jacobian[0, 1] = (l2FinalState.Theta - unperturbedFinalState.Theta) / DerivativeDelta;
-                jacobian[1, 0] = (l1FinalState.Lambda2 - unperturbedFinalState.Lambda2) / DerivativeDelta;
-                jacobian[1, 1] = (l2FinalState.Lambda2 - unperturbedFinalState.Lambda2) / DerivativeDelta;
-                return jacobian;
-            }
+                );
+            lambdas = Algorithms.NewtonRaphson(objective, lambdas, iterationsLimit: MaxIterations, tolerance: Tolerance, lambda: 0.1f);
+            var ode = GetODE(initialAngle, initialVelocity, lambdas);
+            return ode.Solve(time, SamplesCount);
         }
 
+        private PendulumODE GetODE(double theta0, double omega0, Vector lambdas0)
+        {
+            return new PendulumODE()
+            {
+                InitialState = new PendulumODE.State()
+                {
+                    Theta = theta0,
+                    Omega = omega0,
+                    Lambda1 = lambdas0[0],
+                    Lambda2 = lambdas0[1]
+                },
+                Gravity = this.Gravity,
+                Length = this.PendulumLength
+            };
+        }
 
     }
 }

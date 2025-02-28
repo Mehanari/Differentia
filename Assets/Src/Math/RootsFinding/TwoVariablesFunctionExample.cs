@@ -1,11 +1,15 @@
 ﻿using System;
+using System.Collections;
+using Src.Math.Components;
 using Src.VisualisationTools.Plotting;
 using UnityEngine;
+using UnityEngine.UI;
 
 namespace Src.Math.RootsFinding
 {
     public class TwoVariablesFunctionExample : MonoBehaviour
     {
+        [SerializeField] private Button stepButton;
         [SerializeField] private Plotter3D plotter;
         [SerializeField] private GameObject dotPrefab;
         //Next three parameters are applied to both x and y values. Just for simplicity.
@@ -14,71 +18,65 @@ namespace Src.Math.RootsFinding
         [SerializeField] private float to;
 
         private float Step => (to - from) / samplesCount;
+        private Func<Vector, double> f = (v) =>
+        {
+            return v[0]*v[1]+1;
+        };
+
+        private bool _step = false;
 
         private void Start()
         {
-            //We are trying to minimize this
-            Func<float, float, float> f = (float x, float y) =>
-            {
-                return 0.5f*x * x + 0.3f*x * y + 0.8f*y * y - 2*x - 3*y + 2f;
-            };
-            
-            Func<float, float, float> dfdx = (float x, float y) =>
-            {
-                return x + 0.3f * y - 2;
-            };
-            Func<float, float, float> dfdy = (float x, float y) =>
-            {
-                return 0.3f * x + 1.6f * y - 3;
-            };
-            Func<float, float, Vector> differentials = (float x, float y) =>
-            {
-                var vector = new Vector(2);
-                vector[0] = dfdx(x, y);
-                vector[1] = dfdy(x, y);
-                return vector;
-            };
-            Func<float, float, SquareMatrix> jacobianExact = (float x, float y) =>
-            {
-                var matrix = new SquareMatrix(2);
-                matrix[0, 0] = 1; //(dfdx)/dx
-                matrix[0, 1] = 0.3f; //(dfdx)/dy
-                matrix[1, 0] = 0.3f; //(dfdy)/dx
-                matrix[1, 1] = 1.6f; //(dfdy)/dy 
-                return matrix;
-            };
-            Func<float, float, SquareMatrix> jacobianApprox = (float x, float y) =>
-            {
-                var diff = 0.0000001f;
-                var matrix = new SquareMatrix(2);
-                matrix[0, 0] = (dfdx(x + diff, y) - dfdx(x, y)) / diff;
-                matrix[0, 1] = (dfdx(x, y + diff) - dfdx(x, y)) / diff;
-                matrix[1, 0] = (dfdy(x + diff, y) - dfdy(x, y)) / diff;
-                matrix[1, 1] = (dfdy(x, y + diff) - dfdy(x, y)) / diff;
-                return matrix;
-            };
-
-            float x0 = 0f;
-            float y0 = 0f;
-            float tolerance = 0.000001f;
-            while (differentials(x0, y0).Magnitude() > tolerance)
-            {
-                var vector = new Vector(2);
-                vector[0] = x0;
-                vector[1] = y0;
-                var next = vector - differentials(x0, y0) * jacobianApprox(x0, y0).Inverse();
-                x0 = (float) next[0];
-                y0 = (float) next[1];
-            }
-
-            float zMin = f(x0, y0);
+            var objective = Algorithms.PartialDerivatives(f, 2);
+            var guess = new Vector(2);
+            guess[0] = -2;
+            guess[1] = -4;
+            guess = Algorithms.NewtonRaphson(objective, guess, iterationsLimit: 1);
+            var z = f(guess);
 
             PlotFunction(f);
-            var dot = Instantiate(dotPrefab, new Vector3(x0, zMin, y0), Quaternion.identity);
+            var dot = Instantiate(dotPrefab, new Vector3((float)guess[0] - from, (float)z, (float)guess[1] - from), Quaternion.identity);
             dot.transform.localScale = new Vector3(0.05f, 0.05f, 0.05f);
+            StartCoroutine(VisualiseNewtonRaphson());
+            stepButton.onClick.AddListener(OnClick);
         }
 
-        private void PlotFunction(Func<float, float, float> f)
+        private void OnClick()
+        {
+            _step = true;
+        }
+
+
+        private IEnumerator VisualiseNewtonRaphson()
+        {
+            var iterationsLimit = 1000;
+            var tolerance = 0.0001d;
+            var objective = Algorithms.PartialDerivatives(f, 2);
+            var guess = new Vector(2);
+            guess[0] = 0f;
+            guess[1] = 0;
+            var z =  f(guess);
+            var dot = Instantiate(dotPrefab, new Vector3((float)guess[0] - from, (float)z, (float)guess[1] - from), Quaternion.identity);
+            dot.transform.localScale = new Vector3(0.05f, 0.05f, 0.05f);
+            var iteration = 0;
+            while (objective.Calculate(guess).Magnitude() > tolerance && iteration < iterationsLimit)
+            {
+                yield return new WaitUntil(() =>
+                {
+                    if (!_step) return false;
+                    _step = !_step;
+                    return true;
+                });
+                var J = Algorithms.SquareJacobian(objective, guess);
+                var I = SquareMatrix.I(guess.Length); //Addition of identity matrix multiplied by lambda is needed to avoid uninversible jacobians.
+                guess = guess - objective.Calculate(guess) * (J+I*1d).Inverse();
+                iteration++;
+                z = f(guess);
+                dot.transform.position = new Vector3((float)guess[0] - from, (float)z, (float)guess[1] - from);
+            }
+        }
+
+        private void PlotFunction(Func<Vector, double> f)
         {
             var x = new float[samplesCount];
             var y = new float[samplesCount];
@@ -93,7 +91,10 @@ namespace Src.Math.RootsFinding
             {
                 for (int j = 0; j < samplesCount; j++)
                 {
-                    z[i, j] = f(x[i], y[j]);
+                    var input = new Vector(2);
+                    input[0] = x[i];
+                    input[1] = y[j];
+                    z[i, j] = (float)f(input);
                 }
             }
             

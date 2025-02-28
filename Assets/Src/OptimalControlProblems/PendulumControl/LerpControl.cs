@@ -48,12 +48,21 @@ namespace Src.OptimalControlProblems.PendulumControl
                 lIndex = 0;
             }
 
+            if (lIndex == rIndex)
+            {
+                return _controlSamples[lIndex];
+            }
+
             var lTime = TimeStep * lIndex;
             var rTime = TimeStep * rIndex;
             var alpha = (time - lTime) / (rTime - lTime);
             var lVal = _controlSamples[lIndex];
             var rVal = _controlSamples[rIndex];
             var interpolated = alpha*(rVal - lVal) + lVal;
+            if (interpolated is double.NaN)
+            {
+                Debug.Log("Wtf");
+            }
 
             return interpolated;
         }

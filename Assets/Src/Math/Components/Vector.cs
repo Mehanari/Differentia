@@ -1,13 +1,12 @@
 ﻿using System;
-using UnityEngine;
 
-namespace Src
+namespace Src.Math.Components
 {
     /// <summary>
     /// A vector of values.
     /// I need it to perform more flexible operations, like matrix multiplication.
     /// </summary>
-    public struct Vector
+    public readonly struct Vector
     {
         public int Length { get; }
 
@@ -72,6 +71,22 @@ namespace Src
             for (int i = 0; i < a.Length; i++)
             {
                 result[i] = a[i] - b[i];
+            }
+
+            return result;
+        }
+        
+        public static Vector operator + (Vector a, Vector b)
+        {
+            if (a.Length != b.Length)
+            {
+                throw new InvalidOperationException("Cannot add vectors of different length.");
+            }
+
+            var result = new Vector(a.Length);
+            for (int i = 0; i < a.Length; i++)
+            {
+                result[i] = a[i] + b[i];
             }
 
             return result;
