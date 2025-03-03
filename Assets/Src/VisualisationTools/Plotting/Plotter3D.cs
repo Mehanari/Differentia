@@ -1,10 +1,18 @@
-﻿using UnityEngine;
+﻿using System.Collections.Generic;
+using System.Linq;
+using UnityEngine;
 
 namespace Src.VisualisationTools.Plotting
 {
     public class Plotter3D : MonoBehaviour
-    {
+    {  
+        /// <summary>
+        /// Imposing a necessity of having a mesh renderer on a dot.
+        /// </summary>
+        [SerializeField] private MeshRenderer dotPrefab;
         [SerializeField] private MeshFilter meshFilter;
+
+        private List<DotPlotParameters> _dotPlots = new();
 
         /// <summary>
         /// Points with bigger z are colored as cold and points with lower z are colored as hot.
@@ -36,6 +44,46 @@ namespace Src.VisualisationTools.Plotting
             mesh.vertices = vertices;
             mesh.colors = colors;
             meshFilter.mesh = mesh;
+        }
+
+        public void PlotDots(float length, float width, float[,] z, string graphName, Color dotsColor)
+        {
+            var xDots = z.GetLength(0);
+            var yDots = z.GetLength(1);
+            var xStep = length / xDots;
+            var yStep = width / yDots;
+            var dots = new List<GameObject>();
+            for (int x = 0; x < xDots; x++)
+            {
+                for (int y = 0; y < yDots; y++)
+                {
+                    var position = new Vector3(x * xStep, y * yStep, z[x, y]);
+                    var dot = Instantiate(dotPrefab, position, Quaternion.identity);
+                    dot.material.color = dotsColor;
+                    dots.Add(dot.gameObject);
+                }
+            }
+
+            var plotParameters = new DotPlotParameters()
+            {
+                Name = graphName,
+                Dots = dots
+            };
+            _dotPlots.Add(plotParameters);
+        }
+
+        public void DeletePlot(string plotName)
+        {
+            var plot = _dotPlots.FirstOrDefault(p => p.Name == plotName);
+            if (plot != null)
+            {
+                foreach (var dot in plot.Dots)
+                {
+                    Destroy(dot);
+                }
+                plot.Dots.Clear();
+                _dotPlots.Remove(plot);
+            }
         }
 
         private (float min, float max) GetMinMax(float[,] values)

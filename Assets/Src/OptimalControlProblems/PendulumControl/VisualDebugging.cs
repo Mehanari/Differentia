@@ -1,52 +1,39 @@
-﻿using Src.VisualisationTools.Plotting;
+﻿using System;
+using Src.Math.Components;
+using Src.VisualisationTools.Plotting;
 using UnityEngine;
 
 namespace Src.OptimalControlProblems.PendulumControl
 {
     public class VisualDebugging : MonoBehaviour
     {
-        [SerializeField] private Plotter2D plotter;
-        [SerializeField] private float pendulumLength = 1f;
-        [SerializeField] private float gravity = 9.81f;
+        [SerializeField] private Plotter3D plotter;
+        [SerializeField] private int plotSamplesCountRoot = 100;
+        [SerializeField] private int odeSamplesCount = 1000;
+        [SerializeField] private float odeSimulationTime = 1f;
+        [SerializeField] private float from = -5f;
+        [SerializeField] private float to = 5f;
+        [SerializeField] private float Gravity = 9.81f;
+        [SerializeField] private float PendulumLength = 1f;
         [SerializeField] private float initialAngle = 0f;
-        [SerializeField] private float initialVelocity = 0f;
-        [SerializeField] private float lambda1_0start = 0f;
-        [SerializeField] private float lambda2_0 = 0f;
-        [SerializeField] private float time = 1f;
-        [SerializeField] private float lambda1_0final = 5f;
-        [SerializeField] private int lambdaSamples = 1000;
-        [SerializeField] private int odeSamples = 1000;
+        [SerializeField] private float initialAngularVelocity = 0f;
+        [SerializeField] private float targetAngle = Mathf.PI / 2;
+ 
+        private double Sin(double angle) => System.Math.Sin(angle);
 
-        private PendulumODE _ode;
-        private PendulumODE.State _currentState;
+        private double Cos(double angle) => System.Math.Cos(angle);
         
-
         protected void Start()
         {
-            var lambda1Values = new float[lambdaSamples];
-            var lambdaStep = (lambda1_0final - lambda1_0start) / lambdaSamples;
-            var thetaFinalValues = new float[lambdaSamples];
-            for (int i = 0; i < lambdaSamples; i++)
-            {
-                var lambda1_0 = lambda1_0start + i * lambdaStep;
-                var ode = new PendulumODE()
-                {
-                    InitialState = new PendulumODE.State
-                    {
-                        Theta = initialAngle,
-                        Omega = initialVelocity,
-                        Lambda1 = lambda1_0,
-                        Lambda2 = lambda2_0
-                    },
-                    Gravity = gravity,
-                    Length = pendulumLength
-                };
-                var thetaFinal = ode.Solve(time, odeSamples)[odeSamples - 1].Theta;
-                lambda1Values[i] = lambda1_0;
-                thetaFinalValues[i] = (float) thetaFinal;
-            }
-
-            plotter.Plot(lambda1Values, thetaFinalValues, "Theta sensitivity", Color.green);
+            var dynamics = new FuncVector(
+                (state) => state[1], //Theta rate of change
+                (state) => -(Gravity / PendulumLength)*Sin(state[0]) - state[3], //Omega rate of change
+                (state) => state[3] * (Gravity/PendulumLength) * Cos(state[0]), //Lambda1 rate of change
+                (state) => - state[2] //Lambda2 rate of change
+            );
+            Func<float, float, float> thetaDiffOverLambdas;
+            var lambda1 = new float[plotSamplesCountRoot];
+            var lambda2 = new float[plotSamplesCountRoot];
         }
     }
 }

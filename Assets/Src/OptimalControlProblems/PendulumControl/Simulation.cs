@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Src.Math;
+using Src.Math.Components;
 using Src.Pendulum;
 using UnityEngine;
 
@@ -27,37 +28,45 @@ namespace Src.OptimalControlProblems.PendulumControl
         private float[] _angles;
         private float[] _velocities;
 
+        private FuncVector _pendulumDynamics;
+        
         protected override void Start()
         {
             base.Start();
-
+            
             var controlGenerator = new ThrowControlGenerator
             {
                 Gravity = g,
                 PendulumLength = length,
                 Tolerance = controlTolerance,
                 DerivativeDelta = derivativeDelta,
-                SamplesCount = controlSamples
+                ODESamplesCount = controlSamples
             };
             Control control = controlGenerator.GenerateControl(initialAngle, initialAngularVelocity, targetAngle, controlTime);
+            
+            //Here state vector has 3 values inside: angle, velocity and time.
+            //The time increases with a speed of 1.
+            _pendulumDynamics = new FuncVector(
+                (state) => state[1],
+                (state) => - (g/length)*System.Math.Sin(state[0]) /* + control.ControlInput(state[2]) */,
+                (state) => 1 
+            );
 
             _angles = new float[samplesCount];
             _velocities = new float[samplesCount];
             _angles[0] = initialAngle;
             _velocities[0] = initialAngularVelocity;
-            
-            for (int i = 1; i < samplesCount; i++)
+
+            var initialState = new Vector(3);
+            initialState[0] = initialAngle;
+            initialState[1] = initialAngularVelocity;
+            initialState[2] = 0;
+
+            var stateVectors = ODESolver.CalculateStates(_pendulumDynamics, initialState, simulationTime, samplesCount);
+            for (int i = 1; i < stateVectors.Length; i++)
             {
-                var startVelocity = _velocities[i-1];
-                var currentAngle = _angles[i-1];
-                var acceleration = -(g / length) * Mathf.Sin(currentAngle) + (float)control.ControlInput(i * TimeStep);
-                //var acceleration = -(g / length) * Mathf.Sin(currentAngle);
-                var endVelocity = startVelocity + TimeStep * acceleration;
-                var averageVelocity = (startVelocity + endVelocity) / 2;
-                var nextAngle = currentAngle + averageVelocity * TimeStep;
-                var nextVelocity = endVelocity;
-                _angles[i] = nextAngle;
-                _velocities[i] = nextVelocity;
+                _angles[i] = (float) stateVectors[i][0];
+                _velocities[i] = (float)stateVectors[i][1];
             }
             
             SetSimulationState(0);

@@ -91,5 +91,21 @@ namespace Src.Math.Components
 
             return result;
         }
+
+        public static Vector operator *(Vector vector, double num)
+        {
+            var result = new Vector(vector.Length);
+            for (int i = 0; i < vector.Length; i++)
+            {
+                result[i] = vector[i] * num;
+            }
+
+            return result;
+        }
+
+        public static Vector operator /(Vector vector, double num)
+        {
+            return vector * (1 / num);
+        }
     }
 }

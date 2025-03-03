@@ -42,8 +42,12 @@ namespace Src.Math.RootsFinding
             {
                 iteration++;
                 var J = SquareJacobian(objective, guess, derivationDelta);
-                var I = SquareMatrix.I(guess.Length); //Addition of identity matrix multiplied by lambda is needed to avoid uninversible jacobians.
-                guess = guess - objective.Calculate(guess) * (J+I*lambda).Inverse();
+                if (System.Math.Abs(J.Determinant()) < 0.00001f)
+                {
+                    var I = SquareMatrix.I(guess.Length); 
+                    J += I * lambda; //Addition of identity matrix multiplied by lambda is needed to avoid uninversible jacobians.
+                }
+                guess = guess - objective.Calculate(guess) * J.Inverse();
                 distance = objective.Calculate(guess).Magnitude();
             }
 
