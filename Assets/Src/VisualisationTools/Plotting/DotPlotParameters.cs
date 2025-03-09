@@ -3,9 +3,17 @@ using UnityEngine;
 
 namespace Src.VisualisationTools.Plotting
 {
-    public class DotPlotParameters
+    public class DotPlotParameters : PlotParameters
     {
-        public string Name { get; set; }
         public List<GameObject> Dots { get; set; }
+        
+        public override void Destroy()
+        {
+            foreach (var dot in Dots)
+            {
+                Object.Destroy(dot);
+            }
+            Dots.Clear();
+        }
     }
 }

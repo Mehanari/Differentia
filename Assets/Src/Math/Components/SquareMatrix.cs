@@ -49,7 +49,8 @@ namespace Src.Math.Components
         
         public SquareMatrix Adjoint()
         {
-            return CofactorMatrix().Transpose();
+            var cofactor = CofactorMatrix();
+            return cofactor.Transpose();
         }
 
         public SquareMatrix Transpose()
@@ -134,6 +135,11 @@ namespace Src.Math.Components
             {
                 throw new InvalidOperationException(
                     "Cannot find sub matrix. Indices are out of the matrix boundaries.");
+            }
+
+            if (Size == 1)
+            {
+                return I(1);
             }
 
             var sub = new SquareMatrix(Size - 1);

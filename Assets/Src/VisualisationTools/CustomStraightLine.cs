@@ -140,7 +140,7 @@ namespace Src.VisualisationTools
         {
             if (dotIndex < 0 || dotIndex >= _upperVertices.Length)
             {
-                Debug.LogError("Dot index must be in [0, dots count)");
+                Debug.LogError("PlotSingleDot index must be in [0, dots count)");
                 return;
             }
             _upperColors[dotIndex] = color;

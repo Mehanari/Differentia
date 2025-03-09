@@ -20,7 +20,7 @@ namespace Src.OptimalControlProblems.PendulumControl
         [SerializeField] private float controlTime = 1f;
         [SerializeField] private float targetAngle = Mathf.PI / 2;
         [SerializeField] private float controlTolerance = 0.0001f;
-        [SerializeField] private float derivativeDelta = 0.00001f;
+        [SerializeField] private float derivativeDelta = 0.001f;
         [Header("Visualisation")]
         [SerializeField] private PendulumView view;
 
@@ -42,13 +42,14 @@ namespace Src.OptimalControlProblems.PendulumControl
                 DerivativeDelta = derivativeDelta,
                 ODESamplesCount = controlSamples
             };
-            Control control = controlGenerator.GenerateControl(initialAngle, initialAngularVelocity, targetAngle, controlTime);
-            
+            var io = new ControlJsonIO();
+            //Control control = controlGenerator.GenerateControl(initialAngle, initialAngularVelocity, targetAngle, controlTime);
+            var control = io.ReadDiscrete(Application.dataPath + "/Resources/Controls/pendulumThrow.json");
             //Here state vector has 3 values inside: angle, velocity and time.
             //The time increases with a speed of 1.
             _pendulumDynamics = new FuncVector(
                 (state) => state[1],
-                (state) => - (g/length)*System.Math.Sin(state[0]) /* + control.ControlInput(state[2]) */,
+                (state) => - (g/length)*System.Math.Sin(state[0]) + control.ControlInput(state[2]),
                 (state) => 1 
             );
 

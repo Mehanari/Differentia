@@ -20,17 +20,17 @@ namespace Src.Math.RootsFinding
         private float Step => (to - from) / samplesCount;
         private Func<Vector, double> f = (v) =>
         {
-            return v[0]*v[1]+1;
+            return System.Math.Sin(5*v[0]) + System.Math.Sin(5*v[1]);
         };
 
         private bool _step = false;
 
         private void Start()
         {
-            var objective = Algorithms.PartialDerivatives(f, 2);
+            var objective = new FuncVector(f);
             var guess = new Vector(2);
-            guess[0] = -2;
-            guess[1] = -4;
+            guess[0] = 1;
+            guess[1] = 1;
             guess = Algorithms.NewtonRaphson(objective, guess, iterationsLimit: 1);
             var z = f(guess);
 
@@ -98,7 +98,7 @@ namespace Src.Math.RootsFinding
                 }
             }
             
-            plotter.PlotHeat(Step*samplesCount, Step*samplesCount, z);
+            plotter.PlotHeat(Step*samplesCount, Step*samplesCount, z, "Plot");
         }
     }
 }

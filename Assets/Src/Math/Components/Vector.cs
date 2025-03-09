@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Text;
 
 namespace Src.Math.Components
 {
@@ -106,6 +107,26 @@ namespace Src.Math.Components
         public static Vector operator /(Vector vector, double num)
         {
             return vector * (1 / num);
+        }
+
+        public override string ToString()
+        {
+            var builder = new StringBuilder();
+            builder.Append("( ");
+            for (int i = 0; i < _values.Length; i++)
+            {
+                builder.Append(_values[i]);
+                if (i == _values.Length - 1)
+                {
+                    builder.Append(" )");
+                }
+                else
+                {
+                    builder.Append(", ");
+                }
+            }
+
+            return builder.ToString();
         }
     }
 }

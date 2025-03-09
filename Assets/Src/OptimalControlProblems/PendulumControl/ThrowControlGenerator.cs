@@ -52,7 +52,7 @@ namespace Src.OptimalControlProblems.PendulumControl
         {
             dynamics = new FuncVector(
                 (state) => state[1], //Theta rate of change
-                (state) => -(Gravity / PendulumLength)*Sin(state[0]) - state[3], //Omega rate of change
+                (state) => -(Gravity / PendulumLength)*Sin(state[0]) - state[3]/2, //Omega rate of change
                 (state) => state[3] * (Gravity/PendulumLength) * Cos(state[0]), //Lambda1 rate of change
                 (state) => - state[2] //Lambda2 rate of change
                 );
@@ -93,7 +93,7 @@ namespace Src.OptimalControlProblems.PendulumControl
             //The objective function below takes lambdas vector as an input and returns (theta - targetAngle, lambda2) vector as an output.
             //We need to find such lambdas vector so this function returns (0, 0) or something close enough to (0, 0).
             var objective = new FuncVector(
-                (inputLambdas) => System.Math.Abs(CalculateFinalState(ToStateVector(initialAngle, initialVelocity, inputLambdas), time)[0] - targetAngle),
+                (inputLambdas) => CalculateFinalState(ToStateVector(initialAngle, initialVelocity, inputLambdas), time)[0] - targetAngle,
                 (inputLambdas) => CalculateFinalState(ToStateVector(initialAngle, initialVelocity, inputLambdas), time)[3]
                 );
             lambdas = Algorithms.NewtonRaphson(objective, lambdas, iterationsLimit: MaxIterations, tolerance: Tolerance, lambda: 0.1f);

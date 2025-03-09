@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -5,28 +6,41 @@ namespace Src.VisualisationTools.Plotting
 {
     public class Plotter2D : MonoBehaviour
     {
-        [SerializeField] private GameObject dotPrefab;
+        [SerializeField] private SpriteRenderer dotPrefab;
         [SerializeField] private float lineWidth = 0.1f;
         [SerializeField] private float dotSize = 0.1f;
         
-        private List<PlotParameters2D> _plots = new List<PlotParameters2D>();
+        private readonly List<PlotParameters2D> _plots = new List<PlotParameters2D>();
         
-        public void PlotDots(Vector2[] dots, string plotName, Color color, Vector3 shift = default)
+        public void PlotDots(Vector2[] positions, string plotName, Color color, Vector3 shift = default)
         {
+            RemovePlotByName(plotName);
             var dotsList = new List<GameObject>();
-            foreach (var dot in dots)
+            foreach (var pos in positions)
             {
-                var dotGo = Instantiate(dotPrefab, transform);
-                dotGo.transform.localPosition = shift + new Vector3(dot.x, dot.y, 0);
-                dotGo.transform.localScale = new Vector3(dotSize, dotSize, dotSize);
-                dotGo.GetComponent<SpriteRenderer>().color = color;
-                dotsList.Add(dotGo);
+                var dot = Instantiate(dotPrefab, transform);
+                dot.transform.localPosition = shift + new Vector3(pos.x, pos.y, 0);
+                dot.transform.localScale = new Vector3(dotSize, dotSize, dotSize);
+                dot.GetComponent<SpriteRenderer>().color = color;
+                dotsList.Add(dot.gameObject);
             }
             _plots.Add(new PlotParameters2D
             {
                 Name = plotName,
                 Dots = dotsList
             });
+        }
+
+        public void Plot(float from, float to, Func<float, float> f, int samplesCount, string plotName, Color color,
+            Vector3 shift = default)
+        {
+            var fValues = new float[samplesCount];
+            var step = (to - from) / samplesCount;
+            for (int i = 0; i < samplesCount; i++)
+            {
+                fValues[i] = f(from + step * i);
+            }
+            Plot(from, to, fValues, plotName, color, shift);
         }
         
         public void Plot(float from, float to, float[] y, string plotName, Color color, Vector3 shift = default)
@@ -38,6 +52,11 @@ namespace Src.VisualisationTools.Plotting
                 x[i] = from + i * step;
             }
             Plot(x, y, plotName, color, shift);
+        }
+
+        public void PlotSingleDot(float x, float y, string plotName, Color color, Vector3 shift = default)
+        {
+            PlotDots(new []{new Vector2(x, y)}, plotName, color, shift);
         }
 
         //Increase iteration step parameter to reduce the number of points to draw.
@@ -78,6 +97,7 @@ namespace Src.VisualisationTools.Plotting
         
         public void Plot(float[] x, float[] y, string plotName, Color color, Vector3 shift = default)
         {
+            RemovePlotByName(plotName);
             var line = new GameObject(plotName).AddComponent<LineRenderer>();
             line.transform.SetParent(transform);
             line.transform.localPosition = Vector3.zero;

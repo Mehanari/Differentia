@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using Newtonsoft.Json;
+using UnityEngine;
 
 namespace Src.OptimalControlProblems.PendulumControl
 {
@@ -65,6 +66,16 @@ namespace Src.OptimalControlProblems.PendulumControl
             }
 
             return interpolated;
+        }
+
+        public override string ToJson()
+        {
+            var data = new DiscreteControlData()
+            {
+                Time = (float)Time,
+                ControlSamples = _controlSamples
+            };
+            return JsonConvert.SerializeObject(data);
         }
     }
 }

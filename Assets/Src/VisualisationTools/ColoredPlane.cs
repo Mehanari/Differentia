@@ -21,7 +21,7 @@ namespace Src.VisualisationTools
         {
             if (x < 0 || x >= _xDots || y < 0 || y >= _yDots)
             {
-                Debug.LogError("Dot index must be in [0, dots count)");
+                Debug.LogError("PlotSingleDot index must be in [0, dots count)");
                 return;
             }
             var colors = _mesh.colors;

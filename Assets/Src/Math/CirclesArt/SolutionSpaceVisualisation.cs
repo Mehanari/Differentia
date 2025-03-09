@@ -50,7 +50,7 @@ namespace Src.Math.CirclesArt
                     fitnessValues[i, j] = fitness;
                 }
             }
-            plotter.PlotHeat(firstRadiusSamples*radiusChangeStep, secondRadiusSamples*radiusChangeStep, fitnessValues);
+            plotter.PlotHeat(firstRadiusSamples*radiusChangeStep, secondRadiusSamples*radiusChangeStep, fitnessValues, "Plot");
         }
 
         private float MaxError(Vector3[] solution, Vector3[] actualSolution)
