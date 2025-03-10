@@ -170,10 +170,10 @@ MonoBehaviour:
   directionSlider: {fileID: 1004577318}
   plotter: {fileID: 653240019}
   samplesCount: 1000
-  guess: {x: 1, y: 1}
+  guess: {x: 2, y: 0}
   lineLength: 10
-  from: -2
-  to: 2
+  from: -3
+  to: 3
   derivationDelta: 0.001
 --- !u!1 &485185050
 GameObject:

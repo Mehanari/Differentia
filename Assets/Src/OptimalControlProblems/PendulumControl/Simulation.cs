@@ -43,8 +43,8 @@ namespace Src.OptimalControlProblems.PendulumControl
                 ODESamplesCount = controlSamples
             };
             var io = new ControlJsonIO();
-            //Control control = controlGenerator.GenerateControl(initialAngle, initialAngularVelocity, targetAngle, controlTime);
-            var control = io.ReadDiscrete(Application.dataPath + "/Resources/Controls/pendulumThrow.json");
+            Control control = controlGenerator.GenerateControl(initialAngle, initialAngularVelocity, targetAngle, controlTime);
+            //var control = io.ReadDiscrete(Application.dataPath + "/Resources/Controls/pendulumThrow.json");
             //Here state vector has 3 values inside: angle, velocity and time.
             //The time increases with a speed of 1.
             _pendulumDynamics = new FuncVector(

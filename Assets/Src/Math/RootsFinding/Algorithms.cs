@@ -37,7 +37,7 @@ namespace Src.Math.RootsFinding
             double derivationDelta = 0.0000001d, double tolerance = 0.00001d, int iterationsLimit = 1000, double lambda = 1d)
         {
             var iteration = 0;
-            var distance = objective.Calculate(guess).Magnitude();
+            var distance = objective.Calculate(guess).MagnitudeSquare();
             while (distance > tolerance && iteration < iterationsLimit)
             {
                 iteration++;
@@ -55,6 +55,57 @@ namespace Src.Math.RootsFinding
             }
 
             return guess;
+        }
+
+        /// <summary>
+        /// Find (or tries to find, at least) zeros of a function by applying shooting method in a function gradient direction.
+        /// </summary>
+        /// <param name="objective"></param>
+        /// <param name="initialGuess"></param>
+        /// <param name="derivationDelta"></param>
+        /// <param name="tolerance"></param>
+        /// <param name="iterationsLimit"></param>
+        /// <returns></returns>
+        public static Vector GradientShooting(Func<Vector, double> objective, Vector initialGuess,
+            double derivationDelta = 0.00001d, double tolerance = 0.0001d, int iterationsLimit = 1000)
+        {
+            var guess = initialGuess;
+            var iteration = 0;
+            var height = objective(guess);
+            var gradientFunction = PartialDerivatives(objective, initialGuess.Length, derivationDelta);
+            while (System.Math.Abs(height) > tolerance && iteration < iterationsLimit)
+            {
+                iteration++;
+                var gradient = gradientFunction.Calculate(guess);
+                var derivative = DirectionalDerivative(objective, guess, gradient, derivationDelta);
+                var pivot = new Vector(guess, height);
+                var direction = new Vector(gradient.Normalized(), derivative);
+                var distanceToZero = height / derivative;
+                var zeroPoint = pivot - direction * distanceToZero;
+                guess = zeroPoint.LeftPart(guess.Length);
+                height = objective(guess);
+            }
+
+            return guess;
+        }
+
+        /// <summary>
+        /// Tells you the slope of a multi-variable function f in a given direction.
+        /// The lengths of pos, direction and input of f vectors must be equal. 
+        /// </summary>
+        /// <param name="f"></param>
+        /// <param name="pos"></param>
+        /// <param name="direction"></param>
+        /// <param name="derivationDelta"></param>
+        /// <returns></returns>
+        public static double DirectionalDerivative(Func<Vector, double> f, Vector pos, Vector direction, double derivationDelta = 0.00001d)
+        {
+            direction = direction.Normalized();
+            var offset = direction * derivationDelta;
+            var fPos = f(pos);
+            var fNext = f(pos + offset);
+            var derivative = (fNext - fPos) / derivationDelta;
+            return derivative;
         }
         
         /// <summary>

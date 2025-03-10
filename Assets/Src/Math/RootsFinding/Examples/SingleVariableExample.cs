@@ -1,10 +1,9 @@
 using System;
-using Src.Math.Components;
 using Src.VisualisationTools.Plotting;
 using UnityEngine;
 using UnityEngine.UI;
 
-namespace Src.Math.RootsFinding
+namespace Src.Math.RootsFinding.Examples
 {
     /// <summary>
     /// This example visualizes how the Newton's method works with a single-variable function.

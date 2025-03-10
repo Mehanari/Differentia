@@ -12,10 +12,62 @@ namespace Src.VisualisationTools.Plotting
         /// </summary>
         [SerializeField] private MeshRenderer dotPrefab;
 
-        private List<PlotParameters> _plots = new();
+        private readonly List<PlotParameters> _plots = new();
+
+        public void PlotHeat(float from, float to, Func<Vector2, float> zFunction, int samplesCount, string plotName,
+            Vector3 offset = default)
+        {
+            var bounds = new Vector2(from, to);
+            PlotHeat(bounds, bounds, zFunction, samplesCount, samplesCount, plotName, offset);
+        }
 
         public void PlotHeat(Vector2 xBounds, Vector2 yBounds, Func<Vector2, float> zFunction, int xSamplesCount, 
             int ySamplesCount, string plotName, Vector3 offset = default)
+        {
+            PlotMesh(xBounds, yBounds, zFunction, xSamplesCount, ySamplesCount, plotName, Color.white, offset);
+            var meshPlot = _plots.Find(p => p.Name == plotName) as MeshPlotParameters;
+            ColorMeshPlotAsHeat(meshPlot);
+        }
+        
+        /// <summary>
+        /// Points with bigger z are colored as cold and points with lower z are colored as hot.
+        /// </summary>
+        public void PlotHeat(float length, float width, float[,] z, string plotName, Vector3 offset = default)
+        {
+            PlotMesh(length, width, z, plotName, Color.white, offset);
+            var meshPlot = _plots.Find(p => p.Name == plotName) as MeshPlotParameters;
+            ColorMeshPlotAsHeat(meshPlot);
+        }
+        
+
+        private void ColorMeshPlotAsHeat(MeshPlotParameters meshPlot)
+        {
+            var (min, max) = GetMinMax(meshPlot.Z);
+            var mesh = meshPlot.MeshFilter.mesh;
+            var colors = mesh.colors;
+            for (int x = 0; x < meshPlot.XDots; x++)
+            {
+                for (int y = 0; y < meshPlot.YDots; y++)
+                {
+                    var index = x * meshPlot.YDots + y;
+                    var color = ColorUtils.HeatToColor(meshPlot.Z[x, y], min, max);
+                    colors[index] = color;
+                }
+            }
+            
+            mesh.colors = colors;
+            meshPlot.MeshFilter.mesh = mesh;
+        }
+
+        public void PlotMesh(float from, float to, Func<Vector2, float> zFunction, int samplesCount, string plotName,
+            Color color, Vector3 offset = default)
+        {
+            var bounds = new Vector2(from, to);
+            PlotMesh(bounds, bounds, zFunction,samplesCount, samplesCount, plotName, color, offset);
+        }
+
+        public void PlotMesh(Vector2 xBounds, Vector2 yBounds, Func<Vector2, float> zFunction, int xSamplesCount,
+            int ySamplesCount, string plotName, Color color, Vector3 offset = default)
         {
             var xStart = xBounds.x;
             var xEnd = xBounds.y;
@@ -34,27 +86,20 @@ namespace Src.VisualisationTools.Plotting
                     z[xIndex, yIndex] = zFunction(new Vector2(x, y));
                 }
             }
-            PlotHeat(xEnd - xStart, yEnd - yStart, z, plotName, offset);
+            PlotMesh(xEnd - xStart, yEnd - yStart, z, plotName, color, offset);
         }
         
-        /// <summary>
-        /// Points with bigger z are colored as cold and points with lower z are colored as hot.
-        /// </summary>
-        /// <param name="x"></param>
-        /// <param name="y"></param>
-        /// <param name="z"></param>
-        public void PlotHeat(float length, float width, float[,] z, string plotName, Vector3 offset = default)
+        public void PlotMesh(float length, float width, float[,] z, string plotName, Color color, Vector3 offset = default)
         {
             DeletePlot(plotName);
             var xDots = z.GetLength(0);
             var yDots = z.GetLength(1);
-            var (min, max) = GetMinMax(z);
-            var mesh = MeshMaker.GetPlaneMesh(length, width, xDots, yDots, Color.red);
+            var mesh = MeshMaker.GetPlaneMesh(length, width, xDots, yDots, color);
             var meshFilter = new GameObject(plotName).AddComponent<MeshFilter>();
             var meshRenderer = meshFilter.gameObject.AddComponent<MeshRenderer>();
             meshRenderer.material = new Material(Shader.Find("Sprites/Default"));
+            meshRenderer.material.color = color;
             var vertices = mesh.vertices;
-            var colors = mesh.colors;
             for (int x = 0; x < xDots; x++)
             {
                 for (int y = 0; y < yDots; y++)
@@ -63,19 +108,38 @@ namespace Src.VisualisationTools.Plotting
                     var point = vertices[index];
                     point.y = z[x, y];
                     vertices[index] = point;
-                    var color = ColorUtils.HeatToColor(z[x, y], min, max);
-                    colors[index] = color;
                 }
             }
 
             mesh.vertices = vertices;
-            mesh.colors = colors;
             meshFilter.mesh = mesh;
 
             meshFilter.transform.position = transform.position + offset;
             var plotParameters = new MeshPlotParameters()
             {
                 MeshFilter = meshFilter,
+                Name = plotName,
+                XDots = xDots,
+                YDots = yDots,
+                Z = z
+            };
+            _plots.Add(plotParameters);
+        }
+
+        public void PlotCurve(Vector3[] positions, string plotName, Color color, float lineWidth, Vector3 offset = default)
+        {
+            DeletePlot(plotName);
+            var line = CreateLine(lineWidth, color, plotName);
+            for (int i = 0; i < positions.Length; i++)
+            {
+                positions[i] += offset;
+            }
+
+            line.positionCount = positions.Length;
+            line.SetPositions(positions);
+            var plotParameters = new LinePlotParameters
+            {
+                Line = line,
                 Name = plotName
             };
             _plots.Add(plotParameters);
@@ -97,19 +161,24 @@ namespace Src.VisualisationTools.Plotting
             direction = direction.normalized;
             var start = pivot - direction * (length / 2);
             var end = pivot + direction * (length / 2);
-            var line = new GameObject(plotName).AddComponent<LineRenderer>();
-            line.positionCount = 2;
+            var line = CreateLine(lineWidth, lineColor, plotName);
             line.SetPosition(0, start);
             line.SetPosition(1, end);
-            line.startColor = line.endColor = lineColor;
-            line.startWidth = line.endWidth = lineWidth;
-            line.material = new Material(Shader.Find("Sprites/Default"));
             var plotParameters = new LinePlotParameters()
             {
                 Line = line,
                 Name = plotName
             };
             _plots.Add(plotParameters);
+        }
+
+        private LineRenderer CreateLine(float width, Color color, string plotName = "")
+        {
+            var line = new GameObject(plotName).AddComponent<LineRenderer>();
+            line.material = new Material(Shader.Find("Sprites/Default"));
+            line.startColor = line.endColor = color;
+            line.startWidth = line.endWidth = width;
+            return line;
         }
 
         /// <summary>

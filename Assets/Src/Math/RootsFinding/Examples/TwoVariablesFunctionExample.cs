@@ -5,7 +5,7 @@ using Src.VisualisationTools.Plotting;
 using UnityEngine;
 using UnityEngine.UI;
 
-namespace Src.Math.RootsFinding
+namespace Src.Math.RootsFinding.Examples
 {
     public class TwoVariablesFunctionExample : MonoBehaviour
     {
