@@ -1,5 +1,6 @@
 using System;
-using Src.VisualisationTools.Plotting;
+using MehaMath;
+using MehaMath.VisualisationTools.Plotting;
 using UnityEngine;
 using UnityEngine.UI;
 

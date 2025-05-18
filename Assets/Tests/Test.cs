@@ -1,7 +1,6 @@
-using System;
 using System.Collections.Generic;
+using MehaMath;
 using NUnit.Framework;
-using Src;
 using UnityEngine;
 
 namespace Tests

@@ -1,4 +1,5 @@
-using Src.VisualisationTools.Plotting;
+using MehaMath;
+using MehaMath.VisualisationTools.Plotting;
 using UnityEngine;
 
 namespace Src.Movement

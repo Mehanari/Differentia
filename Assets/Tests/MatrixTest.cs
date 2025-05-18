@@ -1,8 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using MehaMath.Math.Components;
 using NUnit.Framework;
-using Src;
-using Src.Math.Components;
 
 namespace Tests
 {

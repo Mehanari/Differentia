@@ -532,7 +532,7 @@ MonoBehaviour:
   initialAngularVelocity: 0
   controlSamples: 1000
   controlTime: 1
-  targetAngle: 1.570796
+  targetAngle: 1.770796
   controlTolerance: 0.00001
   derivativeDelta: 0.001
   view: {fileID: 2097546519}
@@ -930,7 +930,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   dotPrefab: {fileID: 8742720277440148912, guid: af19da00000da734e97001857f89f034, type: 3}
-  meshFilter: {fileID: 2097561602}
 --- !u!23 &2097561601
 MeshRenderer:
   m_ObjectHideFlags: 0

@@ -1,9 +1,10 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using MehaMath;
+using MehaMath.VisualisationTools;
+using MehaMath.VisualisationTools.Plotting;
 using Src.Math.CirclesArt.GeneticAlgorithms.GAVariants;
-using Src.VisualisationTools;
-using Src.VisualisationTools.Plotting;
 using UnityEngine;
 
 namespace Src.Math.CirclesArt

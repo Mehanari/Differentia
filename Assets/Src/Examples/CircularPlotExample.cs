@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using MehaMath.VisualisationTools.Plotting;
 using Src.Math;
-using Src.VisualisationTools.Plotting;
 using UnityEngine;
 
 namespace Src.Examples

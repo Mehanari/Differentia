@@ -1,4 +1,4 @@
-﻿using Src.Math.Components;
+﻿using MehaMath.Math.Components;
 
 namespace Src.Math
 {

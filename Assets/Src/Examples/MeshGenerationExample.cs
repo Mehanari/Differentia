@@ -1,4 +1,4 @@
-using Src.VisualisationTools;
+using MehaMath.VisualisationTools;
 using UnityEngine;
 
 namespace Src.Examples

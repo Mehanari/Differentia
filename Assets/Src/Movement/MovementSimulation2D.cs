@@ -1,4 +1,5 @@
 using System;
+using MehaMath;
 using UnityEngine;
 
 namespace Src.Movement

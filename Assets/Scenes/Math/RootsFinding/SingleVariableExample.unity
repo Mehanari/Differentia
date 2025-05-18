@@ -445,9 +445,9 @@ MonoBehaviour:
   stepButton: {fileID: 1076174389}
   plotter: {fileID: 1632960743}
   samplesCount: 1000
-  from: -5
-  to: 5
-  guess: 1
+  from: -11
+  to: 11
+  guess: -5
   derivativeDelta: 0.0001
 --- !u!4 &1255892823
 Transform:

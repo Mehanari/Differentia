@@ -427,8 +427,8 @@ MonoBehaviour:
   launchButton: {fileID: 2059960347}
   rocket: {fileID: 262089860}
   rocketMass: 1
-  fuelMass: 10
-  exhaustVelocity: 1000
+  fuelMass: 1
+  exhaustVelocity: 100
   fuelConsumptionRate: 0.1
   gravity: 9.81
   exhaustDirection: {x: 0, y: -1, z: 0}

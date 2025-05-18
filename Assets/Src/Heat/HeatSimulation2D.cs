@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
-using Src.VisualisationTools;
+using MehaMath;
+using MehaMath.VisualisationTools;
 using UnityEngine;
 
 namespace Src.Heat

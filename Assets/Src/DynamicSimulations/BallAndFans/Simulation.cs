@@ -1,6 +1,7 @@
 using System.Collections.Generic;
-using Src.Figures;
-using Src.ForceFields;
+using MehaMath.Figures;
+using MehaMath.ForceFields;
+using MehaMath.Math;
 using UnityEngine;
 
 namespace Src.DynamicSimulations.BallAndFans
