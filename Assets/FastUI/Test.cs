@@ -8,10 +8,10 @@ namespace FastUI
 
 		private void Start()
 		{
-			_canvas.AddButton().WithListener(()=>Debug.Log("First")).WithLabel("First");
-			_canvas.AddButton().WithListener(() => Debug.Log("Second")).WithLabel("Second");
-			_canvas.AddButton().WithLabel("Third").WithListener(() => Debug.Log("Third"));
-			_canvas.AddButton().WithLabel("Fourth").WithListener(() => Debug.Log("Fourth"));
+			_canvas.AddButton().WithListener(()=>Debug.Log("First")).WithLabel("First").AtCorner(Corner.BottomLeft);
+			_canvas.AddButton().WithListener(() => Debug.Log("Second")).WithLabel("Second").AtCorner(Corner.BottomRight);
+			_canvas.AddButton().WithLabel("Third").WithListener(() => Debug.Log("Third")).AtCorner(Corner.TopLeft);
+			_canvas.AddButton().WithLabel("Fourth").WithListener(() => Debug.Log("Fourth")).AtCorner(Corner.TopRight);
 		}
 		
 	}

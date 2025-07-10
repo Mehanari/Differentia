@@ -10,7 +10,7 @@ namespace MehaMath.VisualisationTools.Plotting
         public float[] X { get; set; }
         public float[] Y { get; set; }
         public Color Color { get; set; }
-        [CanBeNull] public LineRenderer Line { get; set; }
+        public List<LineRenderer> Lines { get; set; } = new();
         [CanBeNull] public List<GameObject> Dots { get; set; }
     }
 }

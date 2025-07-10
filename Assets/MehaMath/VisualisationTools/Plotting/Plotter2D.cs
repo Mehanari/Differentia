@@ -7,6 +7,8 @@ namespace MehaMath.VisualisationTools.Plotting
 {
     public class Plotter2D : MonoBehaviour
     {
+        private const float BREAK_DISTANCE = 20f;
+        
         [SerializeField] private SpriteRenderer dotPrefab;
         [SerializeField] private float lineWidth = 0.1f;
         [SerializeField] private float dotSize = 0.1f;
@@ -105,18 +107,17 @@ namespace MehaMath.VisualisationTools.Plotting
         public void Plot(float[] x, float[] y, string plotName, Color color, Vector3 shift = default)
         {
             RemovePlotByName(plotName);
-            var line = new GameObject(plotName).AddComponent<LineRenderer>();
-            line.transform.SetParent(transform);
-            line.transform.localPosition = Vector3.zero;
-            line.positionCount = x.Length;
-            line.startWidth = lineWidth;
-            line.endWidth = lineWidth;
-            line.startColor = color;
-            line.endColor = color;
-            line.material = new Material(Shader.Find("Sprites/Default"));
-            for (int i = 0; i < x.Length; i++)
+            var continuousSegments = GetContinuousSegments(x, y);
+            var lines = new List<LineRenderer>();
+            foreach (var segment in continuousSegments)
             {
-                line.SetPosition(i, shift + new Vector3(x[i], y[i], 0));
+                var line = CreateLine(lineWidth, color, plotName + "_" + lines.Count);
+                line.positionCount = segment.Length;
+                for (int i = 0; i < segment.Length; i++)
+                {
+                    line.SetPosition(i, shift + new Vector3(segment[i].x, segment[i].y, 0));
+                }
+                lines.Add(line);
             }
             _plots.Add(new PlotParameters2D
             {
@@ -124,8 +125,47 @@ namespace MehaMath.VisualisationTools.Plotting
                 X = x,
                 Y = y,
                 Color = color,
-                Line = line
+                Lines = lines,
             });
+        }
+
+        private Vector2[][] GetContinuousSegments(float[] x, float[] y)
+        {
+            var segments = new List<Vector2[]>();
+            var currentSegment = new List<Vector2>();
+            for (int i = 0; i < x.Length; i++)
+            {
+                if (i == 0 || Vector2.Distance(new Vector2(x[i], y[i]), new Vector2(x[i - 1], y[i - 1])) < BREAK_DISTANCE)
+                {
+                    currentSegment.Add(new Vector2(x[i], y[i]));
+                }
+                else
+                {
+                    if (currentSegment.Count > 0)
+                    {
+                        segments.Add(currentSegment.ToArray());
+                        currentSegment.Clear();
+                    }
+                    currentSegment.Add(new Vector2(x[i], y[i]));
+                }
+            }
+            if (currentSegment.Count > 0)
+            {
+                segments.Add(currentSegment.ToArray());
+            }
+            return segments.ToArray();
+        }
+        
+        private static LineRenderer CreateLine(float width, Color color, string plotName)
+        {
+            var line = new GameObject(plotName).AddComponent<LineRenderer>();
+            line.startColor = color;
+            line.endColor = color;
+            line.material = new Material(Shader.Find("Sprites/Default"));
+            line.transform.localPosition = Vector3.zero;
+            line.startWidth = width;
+            line.endWidth = width;
+            return line;
         }
 
         public void RemovePlotByName(string plotName)
@@ -141,10 +181,11 @@ namespace MehaMath.VisualisationTools.Plotting
                         Destroy(dot);
                     }
                 }
-                if (plot.Line != null)
+                foreach (var line in plot.Lines)
                 {
-                    Destroy(plot.Line.gameObject);
+                    Destroy(line.gameObject);
                 }
+                plot.Lines.Clear();
             }
         }
     }

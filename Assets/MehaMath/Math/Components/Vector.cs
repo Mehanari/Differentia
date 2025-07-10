@@ -357,5 +357,16 @@ namespace MehaMath.Math.Components
         {
             return (_values != null ? _values.GetHashCode() : 0);
         }
+
+        public double Sum()
+        {
+            var sum = 0d;
+            for (int i = 0; i < _values.Length; i++)
+            {
+                sum += _values[i];
+            }
+
+            return sum;
+        }
     }
 }

@@ -16,11 +16,11 @@ namespace MehaMath.VisualisationTools.Plotting
             var plot = new PlotParameters2D()
             {
                 Color = color,
-                Line = line,
                 Name = plotName,
                 X = angles,
                 Y = radii
             };
+            plot.Lines.Add(line);
             _plots.Add(plot);
             var center = transform.position + shift;
             for (int i = 0; i < radii.Length; i++)
@@ -62,10 +62,13 @@ namespace MehaMath.VisualisationTools.Plotting
                         Destroy(dot);
                     }
                 }
-                if (plot.Line != null)
+
+                foreach (var line in plot.Lines)
                 {
-                    Destroy(plot.Line.gameObject);
+                    Destroy(line.gameObject);
+
                 }
+                plot.Lines.Clear();
             }
         }
     }
